@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { createRouter } from "./routes/routes";
-import { Provider } from "react-redux";
+import { Provider, useSelector, useDispatch } from "react-redux";
 import store from "./redux/store.js";
 import { ToastContainer } from "react-toastify";
+import { logout } from "./redux/slices/authSlice";
 
-const App = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+const AppContent = () => {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state) => state.auth);
+
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState([]);
   const [commissionSettings, setCommissionSettings] = useState({
@@ -44,34 +47,8 @@ const App = () => {
 
     setUsers(mockUsers);
     setTransactions(mockTransactions);
-
-    // Check if user is already logged in (from localStorage)
-    const savedUser = localStorage.getItem("currentUser");
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-    } else {
-      setCurrentUser(mockUsers[0]); // Default login as Super Admin
-    }
   }, []);
 
-  // Save user to localStorage when it changes
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem("currentUser");
-    }
-  }, [currentUser]);
-
-  const handleLogin = (user) => {
-    setCurrentUser(user);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-  };
-
-  // Create router with current app state
   const router = createRouter({
     currentUser,
     transactions,
@@ -79,25 +56,25 @@ const App = () => {
     commissionSettings,
     setTransactions,
     setUsers,
-    setCurrentUser,
     setCommissionSettings,
-    handleLogin,
-    handleLogout,
+    handleLogout: () => dispatch(logout()),
   });
 
-  return (
-    <Provider store={store}>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        pauseOnHover
-      />
-      <RouterProvider router={router} /> ;
-    </Provider>
-  );
+  return <RouterProvider router={router} />;
 };
+
+const App = () => (
+  <Provider store={store}>
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={true}
+      closeOnClick
+      pauseOnHover
+    />
+    <AppContent />
+  </Provider>
+);
 
 export default App;

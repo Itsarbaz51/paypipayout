@@ -17,7 +17,6 @@ const Sidebar = ({ currentUser, onLogout }) => {
   const location = useLocation();
 
   const menuItems = [
-    // --- COMMON ITEMS (sabko dikhna chahiye) ---
     {
       id: "dashboard",
       label: "Dashboard",
@@ -102,7 +101,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
   ];
 
   // Role ke hisaab se filter karenge
-  const isAdmin = currentUser.role === "admin";
+  const isAdmin = currentUser.role === "ADMIN";
 
   // Agar admin hai to "add-fund" ko skip karo
   const mainItems = menuItems.filter((item) => {
@@ -186,7 +185,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
               <Wallet className="h-3 w-3" />
             </div>
             <p className="text-sm font-semibold mt-1">
-              ₹{currentUser.wallet_balance.toLocaleString()}
+              ₹{currentUser?.walletBalance?.toLocaleString()}
             </p>
           </div>
         </div>
@@ -207,7 +206,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
       <div className="p-4 border-t border-gray-700/50">
         <button
           onClick={onLogout}
-          className="w-full flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
+          className="w-full cursor-pointer hover:bg-red-200 flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"
         >
           <LogOut className="h-5 w-5 mr-3 group-hover:scale-105 transition-transform duration-200" />
           <span className="font-medium">Logout</span>

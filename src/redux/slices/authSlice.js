@@ -7,16 +7,14 @@ axios.defaults.withCredentials = true;
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.baseURL = baseURL;
 
-// ✅ Use sessionStorage instead of localStorage
 const storedUser = sessionStorage.getItem("currentUser");
 
 const initialState = {
-  user: [],
-  currentUserData: storedUser ? JSON.parse(storedUser) : null,
+  currentUser: storedUser ? JSON.parse(storedUser) : null,
   isLoading: false,
   error: null,
   success: null,
-  isAuthenticated: storedUser ? true : false,
+  isAuthenticated: !!storedUser,
 };
 
 const authSlice = createSlice({
@@ -31,29 +29,26 @@ const authSlice = createSlice({
     authSuccess: (state, action) => {
       state.isLoading = false;
       const userData = action.payload?.data || action.payload;
-      state.user = userData;
+      state.currentUser = userData;
       state.success = action.payload?.message || null;
       state.error = null;
       state.isAuthenticated = true;
 
-      // ✅ Store in sessionStorage
       sessionStorage.setItem("currentUser", JSON.stringify(userData));
     },
     authFail: (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
-      if (action.payload) {
-        toast.error(state.error);
-      }
+      if (action.payload) toast.error(state.error);
     },
     logoutUser: (state) => {
-      state.user = null;
+      state.currentUser = null;
       state.isLoading = false;
       state.isAuthenticated = false;
       state.success = null;
       state.error = null;
-      sessionStorage.removeItem("currentUser"); // ✅ clear from sessionStorage
+      sessionStorage.removeItem("currentUser");
     },
   },
 });

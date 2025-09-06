@@ -1,277 +1,342 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Search,
   User,
   Phone,
-  Mail,
-  Wallet,
   Eye,
   Edit,
   UserMinus,
   Settings,
   LogIn,
   Plus,
+  MoreVertical,
+  X,
+  Mail,
+  Wallet,
+  Users,
 } from "lucide-react";
 import AddMember from "../forms/AddMember";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUsers } from "../../redux/slices/userSlice";
 
 const MembersTable = () => {
   const [search, setSearch] = useState("");
   const [showform, setShowform] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
 
-  const users = [
-    {
-      id: 1,
-      name: "harmeek Singh",
-      username: "AZU3158358586",
-      phone: "7896541236",
-      email: "harmeek@gmail.com",
-      role: "State Head",
-      wallet: 996066,
-    },
-    {
-      id: 2,
-      name: "Navindra Singh",
-      username: "AZU9578552905",
-      phone: "7300389828",
-      email: "navindra@ecuzen.com",
-      role: "Master Distributor",
-      wallet: 0,
-    },
-  ];
+  const dispatch = useDispatch();
+  const { users, isLoading } = useSelector((state) => state.user);
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(search.toLowerCase())
+  useEffect(() => {
+    dispatch(getAllUsers());
+  }, [dispatch]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredUsers = users?.filter(
+    (user) =>
+      user.name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email?.toLowerCase().includes(search.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(search.toLowerCase())
   );
 
   const getRoleColor = (role) => {
     switch (role) {
-      case "State Head":
-        return "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-200";
-      case "Master Distributor":
-        return "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-200";
+      case "STATE_HOLDER":
+        return "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-purple-300";
+      case "MASTER_DISTRIBUTOR":
+        return "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300";
+      case "DISTRIBUTOR":
+        return "bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300";
+      case "AGENT":
+        return "bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border-amber-300";
       default:
-        return "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-200";
+        return "bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-gray-300";
     }
   };
 
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+      case "STATE_HOLDER":
+        return "State Holder";
+      case "MASTER_DISTRIBUTOR":
+        return "Master Distributor";
+      case "DISTRIBUTOR":
+        return "Distributor";
+      case "AGENT":
+        return "Agent";
+      default:
+        return role;
+    }
+  };
+
+  const handleMenuAction = (action, user) => {
+    console.log(`${action} action for user:`, user.name);
+    setOpenMenuId(null);
+  };
+
   return (
-    <div className=" ">
-      <div className="">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white p-8 rounded-2xl shadow-xl mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Members Management</h1>
-              <p className="text-slate-300">
-                Manage your team members and their access
-              </p>
-            </div>
-            <div className="hidden md:flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2">
-              <User className="w-5 h-5" />
-              <span className="text-sm">{filteredUsers.length} Members</span>
+        <div className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 text-white p-8 rounded-2xl shadow-xl mb-8 relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-4xl font-bold mb-2 tracking-tight">
+                  Members Management
+                </h1>
+                <p className="text-blue-100 text-lg">
+                  Manage your team members and their access levels
+                </p>
+              </div>
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                  <Users className="w-5 h-5" />
+                  <span className="text-sm font-medium">
+                    {filteredUsers?.length || 0} Members
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Search Section */}
+        {/* Search and Add Member */}
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Team Members
-            </h2>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search members..."
-                className="pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 w-64"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+                Team Members
+              </h2>
+              <p className="text-gray-600">Manage and monitor your team</p>
             </div>
-            <div className="bg-blue-500 text-white flex p-3 rounded cursor-pointer" onClick={() => setShowform(true)}>
-              <Plus />
-              Add Memeber
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search members..."
+                  className="pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 w-64 bg-gray-50 focus:bg-white"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              <button
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white flex items-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                onClick={() => setShowform(true)}
+              >
+                <Plus className="w-4 h-4" />
+                Add Member
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Table Container */}
+        {/* Table */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
                     #
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      Member Details
-                    </div>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
+                    Member
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                    <div className="flex items-center">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Contact
-                    </div>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
+                    Contact
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
                     Role
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                    <div className="flex items-center">
-                      <Wallet className="w-4 h-4 mr-2" />
-                      Wallet
-                    </div>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
+                    Wallet
                   </th>
-                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700 uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-gray-100">
-                {filteredUsers.map((user, index) => (
-                  <tr
-                    key={user.id}
-                    className="hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-200"
-                  >
-                    <td className="px-6 py-5 text-sm font-medium text-gray-900">
-                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
-                        {index + 1}
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-gray-900">
-                          {user.name}
-                        </p>
-                        <p className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
-                          {user.username}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="space-y-2">
-                        <div className="flex items-center text-sm text-gray-700">
-                          <Phone className="w-3 h-3 mr-2 text-gray-400" />
-                          {user.phone}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-700">
-                          <Mail className="w-3 h-3 mr-2 text-gray-400" />
-                          {user.email}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getRoleColor(
-                          user.role
-                        )}`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center">
-                        <div
-                          className={`w-3 h-3 rounded-full mr-2 ${
-                            user.wallet > 0 ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                        ></div>
-                        <span
-                          className={`text-sm font-semibold ${
-                            user.wallet > 0 ? "text-green-600" : "text-gray-500"
-                          }`}
-                        >
-                          ₹{user.wallet.toLocaleString()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-center space-x-2">
-                        <button className="group p-2 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
-                          <LogIn className="w-4 h-4" />
-                        </button>
-                        <button className="group p-2 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-500 hover:to-blue-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
-                          <Settings className="w-4 h-4" />
-                        </button>
-                        <button className="group p-2 bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="group p-2 bg-gradient-to-r from-indigo-400 to-purple-500 hover:from-indigo-500 hover:to-purple-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="group p-2 bg-gradient-to-r from-gray-400 to-slate-500 hover:from-gray-500 hover:to-slate-600 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg">
-                          <UserMinus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filteredUsers.length === 0 && (
+                {isLoading && (
                   <tr>
-                    <td colSpan="6" className="text-center py-12">
-                      <div className="flex flex-col items-center">
-                        <User className="w-12 h-12 text-gray-300 mb-3" />
-                        <p className="text-gray-500 text-lg">
-                          No members found
-                        </p>
-                        <p className="text-gray-400 text-sm">
-                          Try adjusting your search criteria
-                        </p>
-                      </div>
+                    <td colSpan="7" className="text-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4 mx-auto"></div>
+                      <p className="text-gray-500">Loading members...</p>
                     </td>
                   </tr>
                 )}
+
+                {!isLoading &&
+                  filteredUsers?.map((user, index) => (
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all"
+                    >
+                      <td className="px-6 py-5">
+                        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          {index + 1}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-gray-600" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900 mb-1">
+                              {user.name}
+                            </p>
+                            <div className="flex items-center text-xs text-gray-500">
+                              <Mail className="w-3 h-3 mr-1" />
+                              {user.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <div className="flex items-center text-sm text-gray-700">
+                          <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                          {user.phone}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${getRoleColor(
+                            user.role
+                          )}`}
+                        >
+                          {getRoleDisplayName(user.role)}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <div className="flex items-center space-x-2">
+                          <Wallet className="w-4 h-4 text-gray-400" />
+                          <span
+                            className={`text-sm font-semibold ${
+                              user.walletBalance > 0
+                                ? "text-green-600"
+                                : "text-red-500"
+                            }`}
+                          >
+                            ₹{user.walletBalance?.toLocaleString() || 0}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${
+                            user.status === "IN_ACTIVE"
+                              ? "bg-red-100 text-red-800 border-red-300"
+                              : "bg-green-100 text-green-800 border-green-300"
+                          }`}
+                        >
+                          {user.status === "IN_ACTIVE"
+                            ? "Inactive"
+                            : user.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-5 text-center relative">
+                        <div ref={menuRef} className="inline-block">
+                          <button
+                            className="p-2 rounded-full hover:bg-gray-100"
+                            onClick={() =>
+                              setOpenMenuId(
+                                openMenuId === user.id ? null : user.id
+                              )
+                            }
+                          >
+                            {openMenuId === user.id ? (
+                              <X className="w-5 h-5 text-gray-600" />
+                            ) : (
+                              <MoreVertical className="w-5 h-5 text-gray-600" />
+                            )}
+                          </button>
+
+                          {openMenuId === user.id && (
+                            <div className="absolute right-0 mt-2 bg-white shadow-2xl rounded-lg w-48 z-50 border border-gray-200">
+                              <button
+                                onClick={() => handleMenuAction("login", user)}
+                                className="flex items-center w-full px-4 py-3 text-sm hover:bg-blue-50"
+                              >
+                                <LogIn className="w-4 h-4 mr-3 text-blue-500" />
+                                Login as User
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleMenuAction("services", user)
+                                }
+                                className="flex items-center w-full px-4 py-3 text-sm hover:bg-green-50"
+                              >
+                                <Settings className="w-4 h-4 mr-3 text-green-500" />
+                                Manage Services
+                              </button>
+                              <button
+                                onClick={() => handleMenuAction("view", user)}
+                                className="flex items-center w-full px-4 py-3 text-sm hover:bg-purple-50"
+                              >
+                                <Eye className="w-4 h-4 mr-3 text-purple-500" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => handleMenuAction("edit", user)}
+                                className="flex items-center w-full px-4 py-3 text-sm hover:bg-amber-50"
+                              >
+                                <Edit className="w-4 h-4 mr-3 text-amber-500" />
+                                Edit Member
+                              </button>
+                              <div className="border-t border-gray-100"></div>
+                              <button
+                                onClick={() =>
+                                  handleMenuAction("deactivate", user)
+                                }
+                                className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+                              >
+                                <UserMinus className="w-4 h-4 mr-3" />
+                                {user.status === "IN_ACTIVE"
+                                  ? "Activate"
+                                  : "Deactivate"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
-          </div>
-
-          {/* Enhanced Pagination */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center text-sm text-gray-600">
-                <span>Showing </span>
-                <span className="font-semibold text-gray-800 mx-1">1</span>
-                <span>to </span>
-                <span className="font-semibold text-gray-800 mx-1">
-                  {filteredUsers.length}
-                </span>
-                <span>of </span>
-                <span className="font-semibold text-gray-800 mx-1">
-                  {filteredUsers.length}
-                </span>
-                <span>entries</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  className="px-4 py-2 bg-white border border-gray-300 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
-                  disabled
-                >
-                  Previous
-                </button>
-                <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                  1
-                </button>
-                <button
-                  className="px-4 py-2 bg-white border border-gray-300 text-gray-500 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
-                  disabled
-                >
-                  Next
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
+      {/* Modal */}
       {showform && (
-        <div
-          className="fixed inset-0 flex justify-center items-center bg-black/10 z-50 backdrop-blur-xs"
-        
-        >
+        <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
           <AddMember onClose={() => setShowform(false)} />
         </div>
       )}

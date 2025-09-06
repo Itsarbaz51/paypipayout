@@ -76,7 +76,7 @@ const Dashboard = ({
                 Wallet Balance
               </p>
               <p className="text-3xl font-bold text-emerald-600">
-                ₹{currentUser.wallet_balance.toLocaleString()}
+                ₹{currentUser?.walletBalance?.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500 mt-1">Available funds</p>
             </div>

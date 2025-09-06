@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   UserPlus,
   Eye,
@@ -10,63 +10,83 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUsers } from "../redux/slices/userSlice";
 
-const UserManagement = ({ currentUser, users, setUsers }) => {
+const UserManagement = ({ currentUser, setUsers }) => {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "agent",
+    role: "AGENT",
   });
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const canManageUsers =
-    currentUser.role === "super_admin" || currentUser.role === "admin";
+  console.log(currentUser);
 
+  const canManageUsers =
+    currentUser.role === "SUPER_ADMIN" || currentUser.role === "ADMIN";
+
+  const dispatch = useDispatch();
+  const { users, isLoading } = useSelector((state) => state.user);
+
+  console.log(users);
+
+  useEffect(() => {
+    dispatch(getAllUsers());
+  }, [dispatch]);
+
+  //  Filter users by role + parent
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    if (currentUser.role === "super_admin") return matchesSearch;
-    if (currentUser.role === "admin")
+    const parentId = user.parentId || user.parent_id; // 👈 handle both
+
+    if (currentUser.role === "SUPER_ADMIN") return matchesSearch;
+    if (currentUser.role === "ADMIN")
       return (
-        (user.parent_id === currentUser.id || user.id === currentUser.id) &&
+        (parentId === currentUser.id || user.id === currentUser.id) &&
         matchesSearch
       );
     return user.id === currentUser.id && matchesSearch;
   });
 
+  console.log(filteredUsers);
+
+  // Create User
   const handleCreateUser = () => {
     if (!newUser.name || !newUser.email) return;
 
     const user = {
       id: users.length + 1,
       ...newUser,
-      wallet_balance: 0,
-      parent_id:
-        currentUser.role === "super_admin"
-          ? newUser.role === "admin"
+      walletBalance: 0,
+      parentId:
+        currentUser.role === "SUPER_ADMIN"
+          ? newUser.role === "ADMIN"
             ? currentUser.id
             : null
           : currentUser.id,
-      kyc_status: "pending",
-      created_at: new Date().toISOString(),
+      status: "IN_ACTIVE",
+      createdAt: new Date().toISOString(),
     };
 
     setUsers([...users, user]);
-    setNewUser({ name: "", email: "", role: "agent" });
+    setNewUser({ name: "", email: "", role: "AGENT" });
     setShowForm(false);
   };
 
-  const getInitials = (name) => {
-    return name
+  // Avatar helpers
+  const getInitials = (name) =>
+    name
       .split(" ")
       .map((n) => n[0])
       .join("")
       .toUpperCase()
       .substring(0, 2);
-  };
 
   const getAvatarColor = (name) => {
     const colors = [
@@ -83,25 +103,28 @@ const UserManagement = ({ currentUser, users, setUsers }) => {
     return colors[index];
   };
 
+  // Badge colors
   const getRoleColor = (role) => {
     switch (role) {
-      case "super_admin":
+      case "SUPER_ADMIN":
         return "bg-orange-100 text-orange-600";
-      case "admin":
+      case "ADMIN":
         return "bg-blue-100 text-blue-600";
+      case "STATE_HOLDER":
+        return "bg-purple-100 text-purple-600";
       default:
         return "bg-green-100 text-green-600";
     }
   };
 
-  const getKycColor = (status) => {
+  const getStatusColor = (status) => {
     switch (status) {
-      case "verified":
+      case "ACTIVE":
         return "bg-green-100 text-green-600";
-      case "pending":
-        return "bg-yellow-100 text-yellow-600";
-      default:
+      case "IN_ACTIVE":
         return "bg-red-100 text-red-600";
+      default:
+        return "bg-yellow-100 text-yellow-600";
     }
   };
 
@@ -196,10 +219,11 @@ const UserManagement = ({ currentUser, users, setUsers }) => {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  {currentUser.role === "super_admin" && (
-                    <option value="admin">Admin</option>
+                  {currentUser.role === "SUPER_ADMIN" && (
+                    <option value="ADMIN">Admin</option>
                   )}
-                  <option value="agent">Agent</option>
+                  <option value="AGENT">Agent</option>
+                  <option value="STATE_HOLDER">State Holder</option>
                 </select>
               </div>
             </div>
@@ -229,7 +253,7 @@ const UserManagement = ({ currentUser, users, setUsers }) => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
-                  placeholder="Search by name, username, phone, or IFSC..."
+                  placeholder="Search by name, email, or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -268,8 +292,9 @@ const UserManagement = ({ currentUser, users, setUsers }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.map((user) => (
+                {users.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50">
+                    {/* Profile */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div
@@ -289,39 +314,51 @@ const UserManagement = ({ currentUser, users, setUsers }) => {
                         </div>
                       </div>
                     </td>
+
+                    {/* Contact */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{user.email}</div>
                       <div className="text-sm text-gray-500">
                         ID: #{user.id}
                       </div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </div>
                     </td>
+
+                    {/* Role */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(
                           user.role
                         )}`}
                       >
-                        {user.role === "super_admin"
-                          ? "Super Admin"
-                          : user.role.charAt(0).toUpperCase() +
-                            user.role.slice(1)}
+                        {user.role
+                          .toLowerCase()
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (c) => c.toUpperCase())}
                       </span>
                     </td>
+
+                    {/* Wallet */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        ₹{user.wallet_balance.toLocaleString()}
+                        ₹{user.walletBalance?.toLocaleString()}
                       </div>
                     </td>
+
+                    {/* Status */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getKycColor(
-                          user.kyc_status
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                          user.status
                         )}`}
                       >
-                        {user.kyc_status.charAt(0).toUpperCase() +
-                          user.kyc_status.slice(1)}
+                        {user.status.replace("_", " ")}
                       </span>
                     </td>
+
+                    {/* Actions */}
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center gap-2">
                         <button className="text-gray-400 hover:text-gray-600 p-1">
