@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { kycSubmit } from "../../redux/slices/kycSlice";
+import { useNavigate } from "react-router-dom";
 
 const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
   const [activeTab, setActiveTab] = useState("personal");
@@ -166,6 +167,8 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
   };
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleKYCSubmit = () => {
     const allErrors = {};
     Object.values(tabFieldsMap)
@@ -188,6 +191,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
     });
 
     dispatch(kycSubmit(formData));
+    navigate ('/')
   }; 
 
   const FileUploadComponent = ({ field, label, required = false }) => (

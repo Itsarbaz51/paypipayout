@@ -8,7 +8,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.baseURL = baseURL;
 
 const initialState = {
-  kycData: null,
+  kycData: [],
   isLoading: false,
   error: null,
   success: null,
@@ -79,12 +79,12 @@ export const getKycAll = () => async (dispatch) => {
 };
 
 // verify KYC (admin use)
-export const verifyKyc = (userId) => async (dispatch) => {
+export const verifyKyc = (kycId, status) => async (dispatch) => {
   try {
     dispatch(kycRequest());
-    const { data } = await axios.post(`/kyc/verify/${userId}`);
+    const { data } = await axios.put(`/kyc/verify/${kycId}`, {status});
     dispatch(kycSuccess(data));
-    toast.success("KYC Verified Successfully!");
+    dispatch(getKycAll())
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;

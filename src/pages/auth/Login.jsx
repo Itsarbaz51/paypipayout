@@ -11,7 +11,7 @@ const Login = ({ onLogin }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const data = useSelector((state) => state.auth.currentUser);
+  const {currentUser:data, message } = useSelector((state) => state.auth);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,8 +28,8 @@ const Login = ({ onLogin }) => {
 
       console.log("Logged in user:", data);
 
-      if (data.isKyc === false) {
-        navigate("/kyc");
+      if (data.isKyc === false, message === "Login success (KYC required)") {
+        navigate("/kyc-submit");
       } else {
         navigate("/dashboard");
       }

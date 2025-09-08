@@ -72,7 +72,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
       id: "kyc",
       label: "KYC Requests",
       icon: Shield,
-      path: "/kyc",
+      path: "/all-kyc",
       group: "admin",
     },
     {
