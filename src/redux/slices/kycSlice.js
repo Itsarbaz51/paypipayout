@@ -52,10 +52,10 @@ export const { kycRequest, kycSuccess, kycFail, resetKyc } = kycSlice.actions;
 // ---------------- API Actions ------------------
 
 // submit KYC documents
-export const submitKyc = (kycPayload) => async (dispatch) => {
+export const kycSubmit = (kycPayload) => async (dispatch) => {
   try {
     dispatch(kycRequest());
-    const { data } = await axios.post(`/kyc/submit`, kycPayload);
+    const { data } = await axios.post(`/kyc/create-kyc`, kycPayload);
     dispatch(kycSuccess(data));
     toast.success(data.message);
     return data;
@@ -74,7 +74,7 @@ export const getKycAll = () => async (dispatch) => {
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
-    dispatch(kycFail(errMsg));
+    // dispatch(kycFail(errMsg));
   }
 };
 

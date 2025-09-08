@@ -14,7 +14,6 @@ const initialState = {
   error: null,
   success: null,
 };
-
 const usersSlice = createSlice({
   name: "users",
   initialState,
@@ -29,6 +28,13 @@ const usersSlice = createSlice({
       state.users = action.payload?.data || action.payload;
       state.success = action.payload?.message || null;
       state.error = null;
+    },
+    updateUserSuccess: (state, action) => {
+      state.isLoading = false;
+      const updatedUser = action.payload?.data || action.payload;
+      state.users = state.users.map((u) =>
+        u.id === updatedUser.id ? updatedUser : u
+      );
     },
     userSelect: (state, action) => {
       state.selectedUser = action.payload;
@@ -48,8 +54,14 @@ const usersSlice = createSlice({
   },
 });
 
-export const { usersRequest, usersSuccess, usersFail, userSelect, resetUsers } =
-  usersSlice.actions;
+export const {
+  usersRequest,
+  usersSuccess,
+  usersFail,
+  userSelect,
+  resetUsers,
+  updateUserSuccess,
+} = usersSlice.actions;
 
 // ---------------- API Actions ------------------
 
@@ -66,12 +78,30 @@ export const getAllUsers = () => async (dispatch) => {
   }
 };
 
+// update user status
+export const updateUserStates = (id, userData) => async (dispatch) => {
+  try {
+    dispatch(usersRequest());
+    const { data } = await axios.patch(
+      `/users/user-status-update/${id}`,
+      userData
+    );
+    dispatch(usersSuccess(data));
+    dispatch(getAllUsers());
+    return data;
+  } catch (error) {
+    const errMsg = error?.response?.data?.message || error?.message;
+    dispatch(usersFail(errMsg));
+  }
+};
+
 // get single user
 export const getUserById = (userId) => async (dispatch) => {
   try {
     dispatch(usersRequest());
-    const { data } = await axios.get(`/users/${userId}`);
+    const { data } = await axios.get(`/users/get-userById/${userId}`);
     dispatch(userSelect(data));
+    dispatch(getAllUsers());
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;

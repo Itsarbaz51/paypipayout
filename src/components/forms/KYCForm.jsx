@@ -1,144 +1,544 @@
 import React, { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Upload,
+  User,
+  CreditCard,
+  Building,
+  FileText,
+} from "lucide-react";
+import { useDispatch } from "react-redux";
+import { kycSubmit } from "../../redux/slices/kycSlice";
 
 const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
+  const [activeTab, setActiveTab] = useState("personal");
   const [kycData, setKycData] = useState({
-    pan: "",
-    aadhaar: "",
-    bank_account: "",
-    ifsc: "",
+    panNumber: "",
+    aadhaarNumber: "",
+    fatherName: "",
+    dob: "",
+    homeAddress: "",
+    shopName: "",
+    shopAddress: "",
+    district: "",
+    pinCode: "",
+    state: "",
+    accountHolder: "",
+    accountNumber: "",
+    ifscCode: "",
+    bankName: "",
+    panImage: null,
+    aadhaarImageFront: null,
+    aadhaarImageBack: null,
+    shopAddressImage: null,
+    passbookImage: null,
   });
 
-  const handleKYCSubmit = (e) => {
-    e.preventDefault();
+  const [errors, setErrors] = useState({});
+  const [uploadProgress, setUploadProgress] = useState({});
 
-    // Update user KYC status
-    const updatedUsers = users.map((u) =>
-      u.id === currentUser.id ? { ...u, kyc_status: "pending" } : u
-    );
-    setUsers(updatedUsers);
-    setCurrentUser({ ...currentUser, kyc_status: "pending" });
+  const indianStates = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Puducherry",
+  ];
 
-    alert("KYC verification completed successfully!");
+  const kycStatusOptions = {
+    not_started: { color: "red", label: "NOT STARTED" },
+    pending: { color: "yellow", label: "PENDING REVIEW" },
+    verified: { color: "green", label: "VERIFIED" },
+    rejected: { color: "red", label: "REJECTED" },
   };
 
-  return (
-    <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold mb-6 text-red-700">
-        KYC Verification
-      </h3>
+  const handleInputChange = (field, value) => {
+    setKycData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
 
-      <div className="mb-4">
-        <div
-          className={`p-3 rounded-md ${
-            currentUser.kyc_status === "verified"
-              ? "bg-green-50 border border-green-200"
-              : currentUser.kyc_status === "pending"
-              ? "bg-yellow-50 border border-yellow-200"
-              : "bg-red-50 border border-red-200"
-          }`}
-        >
-          <p
-            className={`text-sm ${
-              currentUser.kyc_status === "verified"
-                ? "text-green-800"
-                : currentUser.kyc_status === "pending"
-                ? "text-yellow-800"
-                : "text-red-800"
-            }`}
-          >
-            KYC Status: {currentUser.kyc_status.toUpperCase()}
-          </p>
+  const handleFileUpload = (field, file) => {
+    if (!file) return;
+
+    // only image check
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({ ...prev, [field]: "Only image files allowed" }));
+      return;
+    }
+
+    // max 150KB check
+    if (file.size > 150 * 1024) {
+      setErrors((prev) => ({ ...prev, [field]: "File too large (max 150KB)" }));
+      return;
+    }
+
+    // store file object directly (NOT base64)
+    setKycData((prev) => ({ ...prev, [field]: file }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const tabs = [
+    { id: "personal", label: "Personal Details", icon: User },
+    { id: "shop", label: "Shop Details", icon: Building },
+    { id: "bank", label: "Bank Details", icon: CreditCard },
+    { id: "documents", label: "Documents", icon: Upload },
+  ];
+
+  const tabFieldsMap = {
+    personal: [
+      "panNumber",
+      "aadhaarNumber",
+      "fatherName",
+      "dob",
+      "homeAddress",
+    ],
+    shop: ["shopName", "shopAddress", "district", "pinCode", "state"],
+    bank: ["accountHolder", "accountNumber", "ifscCode", "bankName"],
+    documents: [
+      "panImage",
+      "aadhaarImageFront",
+      "aadhaarImageBack",
+      "shopAddressImage",
+      "passbookImage",
+    ],
+  };
+
+  // Validate only current tab
+  const validateCurrentTab = () => {
+    const currentFields = tabFieldsMap[activeTab];
+    const newErrors = {};
+
+    currentFields.forEach((field) => {
+      if (!kycData[field]) {
+        newErrors[field] = "This field is required";
+      }
+    });
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateCurrentTab()) {
+      const nextIndex = tabs.findIndex((t) => t.id === activeTab) + 1;
+      if (nextIndex < tabs.length) {
+        setActiveTab(tabs[nextIndex].id);
+      }
+    } else {
+      alert("Please fix errors before moving to the next step.");
+    }
+  };
+
+  const handlePrev = () => {
+    const prevIndex = tabs.findIndex((t) => t.id === activeTab) - 1;
+    if (prevIndex >= 0) {
+      setActiveTab(tabs[prevIndex].id);
+    }
+  };
+
+  const dispatch = useDispatch();
+  const handleKYCSubmit = () => {
+    const allErrors = {};
+    Object.values(tabFieldsMap)
+      .flat()
+      .forEach((field) => {
+        if (!kycData[field]) {
+          allErrors[field] = "This field is required";
+        }
+      });
+    setErrors(allErrors);
+
+    if (Object.keys(allErrors).length > 0) {
+      alert("Fix all validation errors before submitting.");
+      return;
+    }
+
+    const formData = new FormData();
+    Object.keys(kycData).forEach((key) => {
+      formData.append(key, kycData[key]);
+    });
+
+    dispatch(kycSubmit(formData));
+  };
+
+  const FileUploadComponent = ({ field, label, required = false }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div
+        className={`border-2 border-dashed p-4 text-center rounded-lg ${
+          errors[field]
+            ? "border-red-500 bg-red-50"
+            : "border-gray-300 hover:border-gray-500"
+        }`}
+      >
+        <input
+          type="file"
+          accept="image/*"
+          id={field}
+          className="hidden"
+          onChange={(e) => handleFileUpload(field, e.target.files[0])}
+        />
+        <label htmlFor={field} className="cursor-pointer">
+          {kycData[field] ? (
+            <div className="text-green-600">✓ Uploaded</div>
+          ) : (
+            <div className="text-gray-500">{label}</div>
+          )}
+        </label>
+      </div>
+      {errors[field] && <p className="text-red-500 text-xs">{errors[field]}</p>}
+    </div>
+  );
+
+  if (currentUser?.isKyc) {
+    return (
+      <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md text-center">
+        <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+        <h4 className="text-2xl font-semibold text-green-800 mb-2">
+          KYC Verified!
+        </h4>
+        <p className="text-gray-600">All verification steps completed.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-blue-500 text-white p-6">
+        <div className="flex gap-3 mb-4">
+          <FileText className="h-8 w-8" />
+          <h3 className="text-xl font-bold">KYC Verification</h3>
         </div>
+        <p>
+          Status:{" "}
+          <span
+            className={`font-bold text-${
+              kycStatusOptions[currentUser?.isKyc]?.color
+            }-600`}
+          >
+            {kycStatusOptions[currentUser?.isKyc]?.label}
+          </span>
+        </p>
       </div>
 
-      {currentUser.kyc_status !== "verified" && (
-        <form onSubmit={handleKYCSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              PAN Number
-            </label>
-            <input
-              type="text"
-              value={kycData.pan}
-              onChange={(e) =>
-                setKycData({ ...kycData, pan: e.target.value.toUpperCase() })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="ABCDE1234F"
-              pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Aadhaar Number
-            </label>
-            <input
-              type="text"
-              value={kycData.aadhaar}
-              onChange={(e) =>
-                setKycData({ ...kycData, aadhaar: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="1234 5678 9012"
-              pattern="[0-9]{4}[\\s][0-9]{4}[\\s][0-9]{4}"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bank Account Number
-            </label>
-            <input
-              type="text"
-              value={kycData.bank_account}
-              onChange={(e) =>
-                setKycData({ ...kycData, bank_account: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="Account Number"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              IFSC Code
-            </label>
-            <input
-              type="text"
-              value={kycData.ifsc}
-              onChange={(e) =>
-                setKycData({ ...kycData, ifsc: e.target.value.toUpperCase() })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-              placeholder="HDFC0000001"
-              pattern="[A-Z]{4}0[A-Z0-9]{6}"
-              required
-            />
-          </div>
-
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        {tabs.map((tab) => (
           <button
-            type="submit"
-            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition duration-200"
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 py-3 px-4 text-center ${
+              activeTab === tab.id
+                ? "border-b-2 border-blue-500 font-semibold"
+                : ""
+            }`}
           >
-            Submit for Verification
+            <tab.icon className="mx-auto h-5 w-5 mb-1" />
+            {tab.label}
           </button>
-        </form>
-      )}
+        ))}
+      </div>
 
-      {currentUser.kyc_status === "verified" && (
-        <div className="text-center py-8">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h4 className="text-lg font-semibold text-green-800">
-            KYC Verified Successfully!
-          </h4>
-          <p className="text-gray-600">You can now perform payouts</p>
-        </div>
-      )}
+      {/* Content */}
+      <div className="p-6 space-y-4">
+        {activeTab === "personal" && (
+          <>
+            <div>
+              <label>PAN Number*</label>
+              <input
+                type="text"
+                maxLength={10}
+                value={kycData.panNumber}
+                onChange={(e) => {
+                  let value = e.target.value.toUpperCase();
+                  handleInputChange("panNumber", value);
+                }}
+                className="w-full border p-2 rounded border-gray-300"
+              />
+            </div>
+            <div>
+              <label>Aadhaar Number*</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={12}
+                value={kycData.aadhaarNumber}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, "");
+                  handleInputChange("aadhaarNumber", value);
+                }}
+                className="w-full border p-2 rounded border-gray-300"
+              />
+            </div>
+
+            <div>
+              <label>Father's Name*</label>
+              <input
+                value={kycData.fatherName}
+                onChange={(e) =>
+                  handleInputChange("fatherName", e.target.value)
+                }
+                className={`w-full border p-2 rounded ${
+                  errors.fatherName ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.fatherName && (
+                <p className="text-red-500 text-xs">{errors.fatherName}</p>
+              )}
+            </div>
+            <div>
+              <label>Date of Birth*</label>
+              <input
+                type="date"
+                value={kycData.dob}
+                onChange={(e) => handleInputChange("dob", e.target.value)}
+                className={`w-full border p-2 rounded ${
+                  errors.dob ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.dob && (
+                <p className="text-red-500 text-xs">{errors.dob}</p>
+              )}
+            </div>
+            <div>
+              <label>Home Address*</label>
+              <textarea
+                value={kycData.homeAddress}
+                onChange={(e) =>
+                  handleInputChange("homeAddress", e.target.value)
+                }
+                className={`w-full border p-2 rounded ${
+                  errors.homeAddress ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.homeAddress && (
+                <p className="text-red-500 text-xs">{errors.homeAddress}</p>
+              )}
+            </div>
+          </>
+        )}
+
+        {activeTab === "shop" && (
+          <>
+            <div>
+              <label>Shop Name*</label>
+              <input
+                value={kycData.shopName}
+                onChange={(e) => handleInputChange("shopName", e.target.value)}
+                className={`w-full border p-2 rounded ${
+                  errors.shopName ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.shopName && (
+                <p className="text-red-500 text-xs">{errors.shopName}</p>
+              )}
+            </div>
+            <div>
+              <label>Shop Address*</label>
+              <textarea
+                value={kycData.shopAddress}
+                onChange={(e) =>
+                  handleInputChange("shopAddress", e.target.value)
+                }
+                className={`w-full border p-2 rounded ${
+                  errors.shopAddress ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.shopAddress && (
+                <p className="text-red-500 text-xs">{errors.shopAddress}</p>
+              )}
+            </div>
+            <div>
+              <label>District*</label>
+              <input
+                value={kycData.district}
+                onChange={(e) => handleInputChange("district", e.target.value)}
+                className={`w-full border p-2 rounded ${
+                  errors.district ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.district && (
+                <p className="text-red-500 text-xs">{errors.district}</p>
+              )}
+            </div>
+            <div>
+              <label>PIN Code*</label>
+              <input
+                type="number"
+                maxLength={6}
+                value={kycData.pinCode}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= 6) {
+                    handleInputChange("pinCode", value);
+                  }
+                }}
+                className={`w-full border p-2 rounded ${
+                  errors.pinCode ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.pinCode && (
+                <p className="text-red-500 text-xs">{errors.pinCode}</p>
+              )}
+            </div>
+            <div>
+              <label>State*</label>
+              <select
+                value={kycData.state}
+                onChange={(e) => handleInputChange("state", e.target.value)}
+                className={`w-full border p-2 rounded ${
+                  errors.state ? "border-red-500" : "border-gray-300"
+                }`}
+              >
+                <option value="">Select State</option>
+                {indianStates.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+              {errors.state && (
+                <p className="text-red-500 text-xs">{errors.state}</p>
+              )}
+            </div>
+          </>
+        )}
+
+        {activeTab === "bank" && (
+          <>
+            <div>
+              <label>Account Holder*</label>
+              <input
+                value={kycData.accountHolder}
+                onChange={(e) =>
+                  handleInputChange("accountHolder", e.target.value)
+                }
+                className={`w-full border p-2 rounded ${
+                  errors.accountHolder ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.accountHolder && (
+                <p className="text-red-500 text-xs">{errors.accountHolder}</p>
+              )}
+            </div>
+            <div>
+              <label>Account Number*</label>
+              <input
+                value={kycData.accountNumber}
+                onChange={(e) =>
+                  handleInputChange("accountNumber", e.target.value)
+                }
+                className={`w-full border p-2 rounded ${
+                  errors.accountNumber ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.accountNumber && (
+                <p className="text-red-500 text-xs">{errors.accountNumber}</p>
+              )}
+            </div>
+            <div>
+              <label>IFSC Code*</label>
+              <input
+                value={kycData.ifscCode}
+                onChange={(e) => handleInputChange("ifscCode", e.target.value)}
+                className={`w-full border p-2 rounded ${
+                  errors.ifscCode ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.ifscCode && (
+                <p className="text-red-500 text-xs">{errors.ifscCode}</p>
+              )}
+            </div>
+            <div>
+              <label>Bank Name</label>
+              <input
+                value={kycData.bankName}
+                onChange={(e) => handleInputChange("bankName", e.target.value)}
+                className="w-full border p-2 rounded border-gray-300"
+              />
+            </div>
+          </>
+        )}
+
+        {activeTab === "documents" && (
+          <>
+            <FileUploadComponent field="panImage" label="PAN Card" required />
+            <FileUploadComponent
+              field="aadhaarImageFront"
+              label="Aadhaar Front"
+              required
+            />
+            <FileUploadComponent
+              field="aadhaarImageBack"
+              label="Aadhaar Back"
+              required
+            />
+            <FileUploadComponent
+              field="shopAddressImage"
+              label="Shop Address Proof"
+              required
+            />
+            <FileUploadComponent field="passbookImage" label="Bank Passbook" />
+          </>
+        )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-between p-6 border-t border-gray-200">
+        <button
+          disabled={activeTab === "personal"}
+          onClick={handlePrev}
+          className="bg-gray-200 px-4 py-2 rounded"
+        >
+          Previous
+        </button>
+        {activeTab !== "documents" ? (
+          <button
+            onClick={handleNext}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Next
+          </button>
+        ) : (
+          <button
+            onClick={handleKYCSubmit}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Submit KYC
+          </button>
+        )}
+      </div>
     </div>
   );
 };

@@ -17,16 +17,24 @@ import {
 } from "lucide-react";
 import AddMember from "../forms/AddMember";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUsers } from "../../redux/slices/userSlice";
+import {
+  getAllUsers,
+  getUserById,
+  updateUserStates,
+} from "../../redux/slices/userSlice";
+import UserProfilePage from "../../pages/UserProfilePage ";
 
 const MembersTable = () => {
   const [search, setSearch] = useState("");
   const [showform, setShowform] = useState(false);
+  const [showViewProfile, setShowViewProfile] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
 
   const dispatch = useDispatch();
-  const { users, isLoading } = useSelector((state) => state.user);
+  const { users: usersData, isLoading } = useSelector((state) => state.user);
+
+  const users = Array.isArray(usersData) ? usersData : [];
 
   useEffect(() => {
     dispatch(getAllUsers());
@@ -80,9 +88,13 @@ const MembersTable = () => {
         return role;
     }
   };
-
-  const handleMenuAction = (action, user) => {
-    console.log(`${action} action for user:`, user.name);
+  const handleMenuAction = (action, user, userData) => {
+    if (action === "status") {
+      dispatch(updateUserStates(user.id, userData));
+    } else if (action === "view") {
+      dispatch(getUserById(user.id));
+      setShowViewProfile(true);
+    }
     setOpenMenuId(null);
   };
 
@@ -311,13 +323,18 @@ const MembersTable = () => {
                                 Edit Member
                               </button>
                               <div className="border-t border-gray-100"></div>
+
                               <button
                                 onClick={() =>
-                                  handleMenuAction("deactivate", user)
+                                  handleMenuAction("status", user, {
+                                    status:
+                                      user.status === "IN_ACTIVE"
+                                        ? "ACTIVE"
+                                        : "IN_ACTIVE",
+                                  })
                                 }
                                 className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50"
                               >
-                                <UserMinus className="w-4 h-4 mr-3" />
                                 {user.status === "IN_ACTIVE"
                                   ? "Activate"
                                   : "Deactivate"}
@@ -338,6 +355,11 @@ const MembersTable = () => {
       {showform && (
         <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
           <AddMember onClose={() => setShowform(false)} />
+        </div>
+      )}
+      {showViewProfile && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
+          <UserProfilePage onClose={() => setShowViewProfile(false)} />
         </div>
       )}
     </div>

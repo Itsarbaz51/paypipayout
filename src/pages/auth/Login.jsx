@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Shield } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../redux/slices/authSlice";
 
@@ -11,19 +11,36 @@ const Login = ({ onLogin }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const data = useSelector((state) => state.auth.currentUser);
+
   const handleLogin = async (e) => {
+    e.preventDefault();
     setLoading(true);
+
     const payload = emailOrPhone.includes("@")
       ? { email: emailOrPhone, password }
       : { phone: emailOrPhone, password };
-    e.preventDefault();
-    dispatch(login(payload));
-    setLoading(false);
-    navigate("/dashboard");
+
+    try {
+      dispatch(login(payload));
+
+      setLoading(false);
+
+      console.log("Logged in user:", data);
+
+      if (data.isKyc === false) {
+        navigate("/kyc");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center bg-gray-50">
+    <div className="flex items-center justify-center bg-gray-50 min-h-screen">
       <div className="bg-white shadow-lg p-8 rounded-xl w-96">
         <div className="text-center mb-6">
           <Shield className="mx-auto h-12 w-12 text-red-600 mb-4" />
@@ -62,7 +79,6 @@ const Login = ({ onLogin }) => {
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-
         <div className="mt-4 text-xs text-gray-500 text-center">
           <p>Use your registered Email or Phone to login</p>
         </div>

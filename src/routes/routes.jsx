@@ -28,6 +28,7 @@ import EmployeeTable from "../components/tabels/EmployeeTable";
 import MembersTable from "../components/tabels/MembersTable";
 import WalletTable from "../components/tabels/Wallet";
 import Register from "../pages/auth/Register";
+import KYCVerification from "../components/forms/KYCForm";
 
 export const createRouter = (appProps) => {
   return createBrowserRouter(
@@ -42,13 +43,11 @@ export const createRouter = (appProps) => {
           <Route
             path="login"
             element={
-              appProps.currentUser ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <Login users={appProps.users} onLogin={appProps.handleLogin} />
-              )
+              <Login users={appProps.users} onLogin={appProps.handleLogin} />
             }
           />
+          {/* Fixed KYC route for public */}
+          <Route path="kyc" element={<KYCVerification />} />
         </Route>
 
         {/* Protected Routes with Main Layout */}

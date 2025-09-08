@@ -160,7 +160,9 @@ const Sidebar = ({ currentUser, onLogout }) => {
           </div>
           <div>
             <h2 className="text-lg font-bold">Payment System</h2>
-            <p className="text-xs">Admin Panel</p>
+            <p className="text-xs">
+              {currentUser.role.replace("_", " ")} Panel
+            </p>
           </div>
         </div>
       </div>
