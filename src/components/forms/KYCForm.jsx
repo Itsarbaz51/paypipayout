@@ -188,7 +188,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
     });
 
     dispatch(kycSubmit(formData));
-  };
+  }; 
 
   const FileUploadComponent = ({ field, label, required = false }) => (
     <div>
