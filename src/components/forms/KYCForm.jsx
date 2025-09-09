@@ -10,6 +10,7 @@ import {
 import { useDispatch } from "react-redux";
 import { kycSubmit } from "../../redux/slices/kycSlice";
 import { useNavigate } from "react-router-dom";
+import { addBank } from "../../redux/slices/bankSlice";
 
 const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
   const [activeTab, setActiveTab] = useState("personal");
@@ -133,7 +134,6 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
     ],
   };
 
-  // Validate only current tab
   const validateCurrentTab = () => {
     const currentFields = tabFieldsMap[activeTab];
     const newErrors = {};
@@ -169,7 +169,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleKYCSubmit = () => {
+  const handleKYCSubmit = async () => {
     const allErrors = {};
     Object.values(tabFieldsMap)
       .flat()
@@ -185,14 +185,61 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
       return;
     }
 
-    const formData = new FormData();
-    Object.keys(kycData).forEach((key) => {
-      formData.append(key, kycData[key]);
-    });
+    try {
+      const kycForm = new FormData();
+      [
+        "panNumber",
+        "aadhaarNumber",
+        "fatherName",
+        "dob",
+        "homeAddress",
+        "shopName",
+        "shopAddress",
+        "district",
+        "pinCode",
+        "state",
+        "panImage",
+        "aadhaarImageFront",
+        "aadhaarImageBack",
+        "shopAddressImage",
+        "passbookImage",
+      ].forEach((key) => {
+        kycForm.append(key, kycData[key]);
+      });
 
-    dispatch(kycSubmit(formData));
-    navigate ('/')
-  }; 
+      const bankForm = new FormData();
+      [
+        "accountHolder",
+        "accountNumber",
+        "ifscCode",
+        "bankName",
+        "passbookImage",
+      ].forEach((key) => {
+        bankForm.append(key, kycData[key]);
+      });
+
+      // --- Call both APIs in parallel ---
+      const [kycRes, bankRes] = await Promise.all([
+        dispatch(kycSubmit(kycForm)),
+        dispatch(addBank(bankForm)),
+      ]);
+
+      console.log("KYC response:", kycRes);
+      console.log("Bank response:", bankRes);
+
+      if (
+        kycRes.data.kycStatus === "PENDING" &&
+        bankRes.data.isVerified === false
+      ) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error submitting KYC/Bank:", error);
+      alert("Submission failed. Please try again.");
+    }
+  };
 
   const FileUploadComponent = ({ field, label, required = false }) => (
     <div>

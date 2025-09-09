@@ -67,5 +67,6 @@ export const protectedRoute = [
   "/settings",
   "/employee-management",
   "/wallet",
-  "/all-kyc"
+  "/all-kyc",
+  "/add-fund"
 ];

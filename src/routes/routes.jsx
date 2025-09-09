@@ -29,6 +29,7 @@ import MembersTable from "../components/tabels/MembersTable";
 import WalletTable from "../components/tabels/Wallet";
 import Register from "../pages/auth/Register";
 import KYCVerification from "../components/forms/KYCForm";
+import AddFundRequest from "../components/forms/AddFundRequest";
 
 export const createRouter = (appProps) => {
   return createBrowserRouter(
@@ -140,6 +141,16 @@ export const createRouter = (appProps) => {
             path="reports"
             element={
               <Reports
+                currentUser={appProps.currentUser}
+                transactions={appProps.transactions}
+                users={appProps.users}
+              />
+            }
+          />
+          <Route
+            path="add-fund"
+            element={
+              <AddFundRequest
                 currentUser={appProps.currentUser}
                 transactions={appProps.transactions}
                 users={appProps.users}

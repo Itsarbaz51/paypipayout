@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { logout } from "./authSlice";
 
 axios.defaults.withCredentials = true;
 const baseURL = import.meta.env.VITE_API_BASE_URL;
@@ -58,6 +59,7 @@ export const kycSubmit = (kycPayload) => async (dispatch) => {
     const { data } = await axios.post(`/kyc/create-kyc`, kycPayload);
     dispatch(kycSuccess(data));
     toast.success(data.message);
+    dispatch(logout())
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -70,7 +72,7 @@ export const getKycAll = () => async (dispatch) => {
   try {
     dispatch(kycRequest());
     const { data } = await axios.get(`/kyc/get-all-kyc`);
-   dispatch(kycSuccess(data));
+    dispatch(kycSuccess(data));
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -82,9 +84,9 @@ export const getKycAll = () => async (dispatch) => {
 export const verifyKyc = (kycId, status) => async (dispatch) => {
   try {
     dispatch(kycRequest());
-    const { data } = await axios.put(`/kyc/verify/${kycId}`, {status});
+    const { data } = await axios.put(`/kyc/verify/${kycId}`, { status });
     dispatch(kycSuccess(data));
-    dispatch(getKycAll())
+    dispatch(getKycAll());
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -92,14 +94,12 @@ export const verifyKyc = (kycId, status) => async (dispatch) => {
   }
 };
 
-// reject KYC (admin use)
-export const rejectKyc = (userId, reason) => async (dispatch) => {
+// delete KYC (admin use)
+export const deleteKyc = (userId) => async (dispatch) => {
   try {
     dispatch(kycRequest());
-    const { data } = await axios.post(`/kyc/reject/${userId}`, { reason });
+    const { data } = await axios.post(`/kyc/delete/${userId}`);
     dispatch(kycSuccess(data));
-    toast.success("KYC Rejected");
-    return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
     dispatch(kycFail(errMsg));

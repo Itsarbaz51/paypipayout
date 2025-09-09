@@ -17,7 +17,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getKycAll, verifyKyc } from "../../redux/slices/kycSlice";
+import { deleteKyc, getKycAll, verifyKyc } from "../../redux/slices/kycSlice";
 
 const AllKycTable = () => {
   const [search, setSearch] = useState("");
@@ -74,7 +74,7 @@ const AllKycTable = () => {
     } else if (action === "reject") {
       dispatch(verifyKyc(kycId, "rejected"))
     } else if (action === "delete") {
-      dispatchverifyKyc(kycId)
+      dispatch(deleteKyc(kycId))
     }
   };
 

@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Shield } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../redux/slices/authSlice";
 
-const Login = ({ onLogin }) => {
+const Login = () => {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {currentUser:data, message } = useSelector((state) => state.auth);
+  const {
+    currentUser: data,
+    success,
+    error,
+  } = useSelector((state) => state.auth);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,22 +27,26 @@ const Login = ({ onLogin }) => {
       : { phone: emailOrPhone, password };
 
     try {
-      dispatch(login(payload));
-
-      setLoading(false);
-
-      console.log("Logged in user:", data);
-
-      if (data.isKyc === false, message === "Login success (KYC required)") {
-        navigate("/kyc-submit");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
+      await dispatch(login(payload)).unwrap();
+    } catch (err) {
+      console.error("Login failed:", err);
+    } finally {
       setLoading(false);
     }
   };
+
+  // Redirect user on login success
+  useEffect(() => {
+    if (success) {
+      if (data.isKyc === false && success === "Login success (KYC required)") {
+        navigate("/kyc-submit");
+      } else if (data.status === "ACTIVE") {
+        navigate("/dashboard");
+      } else {
+        navigate("/login");
+      }
+    }
+  }, [success, data, navigate]);
 
   return (
     <div className="flex items-center justify-center bg-gray-50 min-h-screen">
@@ -46,6 +55,7 @@ const Login = ({ onLogin }) => {
           <Shield className="mx-auto h-12 w-12 text-red-600 mb-4" />
           <h2 className="text-2xl font-bold text-gray-800">Login</h2>
         </div>
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -55,10 +65,12 @@ const Login = ({ onLogin }) => {
               type="text"
               value={emailOrPhone}
               onChange={(e) => setEmailOrPhone(e.target.value)}
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md 
+                         focus:outline-none focus:ring-red-500 focus:border-red-500"
               required
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Password
@@ -67,18 +79,27 @@ const Login = ({ onLogin }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md 
+                         focus:outline-none focus:ring-red-500 focus:border-red-500"
               required
             />
           </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full cursor-pointer bg-black/90 text-white py-2 px-4 rounded-md hover:bg-black transition duration-200 disabled:bg-gray-400"
+            className="w-full cursor-pointer bg-black/90 text-white py-2 px-4 
+                       rounded-md hover:bg-black transition duration-200 
+                       disabled:bg-gray-400"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        {error && (
+          <p className="mt-3 text-sm text-center text-red-500">{error}</p>
+        )}
+
         <div className="mt-4 text-xs text-gray-500 text-center">
           <p>Use your registered Email or Phone to login</p>
         </div>
