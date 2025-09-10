@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
-import { 
-  Search, 
-  CreditCard, 
-  Wallet, 
-  Users, 
-  Clock, 
-  Check, 
-  X, 
+import React, { useEffect, useState } from 'react';
+import {
+  Search,
+  Users,
+  Clock,
   Eye,
   Lock,
   Unlock,
@@ -14,19 +10,16 @@ import {
   Minus,
   ChevronLeft,
   ChevronRight,
-  Menu,
-  Bell,
-  Settings,
-  User,
   Filter,
   Download,
-  Upload,
   TrendingUp,
   DollarSign
 } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { getWalletTransactions } from '../../redux/slices/walletSlice';
 
 const WalletTable = () => {
-  const [activeTab, setActiveTab] = useState('transactions');
+  const [activeTab, setActiveTab] = useState('credit');
   const [searchTerm, setSearchTerm] = useState('');
   const [showLockModal, setShowLockModal] = useState(false);
   const [showReleaseModal, setShowReleaseModal] = useState(false);
@@ -34,6 +27,10 @@ const WalletTable = () => {
   const [lockAmount, setLockAmount] = useState('');
   const [releaseAmount, setReleaseAmount] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  const dispatch = useDispatch()
+
+  useEffect(() => { dispatch(getWalletTransactions({ trnType: "Verified" })) }, [dispatch])
 
   // Sample data
   const transactions = [
@@ -69,33 +66,33 @@ const WalletTable = () => {
     { id: 4, name: 'Navindra Singh', username: 'AZU9578552905', phone: '7300389828', account: '34621114254', ifsc: 'SBIN0004655', bank: 'SBIN', amount: 1000, txnId: 'AZU4897923988T', rrn: '13', txnDate: '2025-09-03', status: 'Approved' }
   ];
 
-  const filteredTransactions = transactions.filter(t => 
+  const filteredTransactions = transactions.filter(t =>
     t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     t.phone.includes(searchTerm)
   );
 
-  const filteredCreditUsers = creditWalletUsers.filter(u => 
+  const filteredCreditUsers = creditWalletUsers.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.phone.includes(searchTerm) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredDebitUsers = debitWalletUsers.filter(u => 
+  const filteredDebitUsers = debitWalletUsers.filter(u =>
     u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.phone.includes(searchTerm) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredPendingRequests = pendingTopupRequests.filter(r => 
+  const filteredPendingRequests = pendingTopupRequests.filter(r =>
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.phone.includes(searchTerm)
   );
 
-  const filteredAllRequests = allTopupRequests.filter(r => 
+  const filteredAllRequests = allTopupRequests.filter(r =>
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     r.phone.includes(searchTerm)
@@ -186,39 +183,6 @@ const WalletTable = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl shadow-lg">
-                <Wallet className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  Azzunique Wallet
-                </h1>
-                <p className="text-sm text-gray-500">Wallet Management System</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                  <Bell className="h-5 w-5 text-gray-600" />
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Settings className="h-5 w-5 text-gray-600" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <User className="h-5 w-5 text-gray-600" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -245,7 +209,6 @@ const WalletTable = () => {
           <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-2 shadow-lg border border-white/20">
             <nav className="flex space-x-2 overflow-x-auto">
               {[
-                { id: 'transactions', label: 'Transactions', icon: CreditCard },
                 { id: 'credit', label: 'Credit Wallet', icon: Plus },
                 { id: 'debit', label: 'Debit Wallet', icon: Minus },
                 { id: 'pending', label: 'Pending Topup', icon: Clock },
@@ -254,11 +217,10 @@ const WalletTable = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
-                  }`}
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap ${activeTab === tab.id
+                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                    }`}
                 >
                   <tab.icon className="h-5 w-5" />
                   <span>{tab.label}</span>
@@ -296,7 +258,7 @@ const WalletTable = () => {
 
         {/* Content */}
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-          {activeTab === 'transactions' && (
+          {/* {activeTab === 'transactions' && (
             <div>
               <div className="px-6 py-4 border-b border-gray-200/50 bg-gradient-to-r from-blue-50 to-purple-50">
                 <div className="flex items-center justify-between">
@@ -388,7 +350,7 @@ const WalletTable = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {(activeTab === 'credit' || activeTab === 'debit') && (
             <div>
@@ -439,13 +401,12 @@ const WalletTable = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{user.email}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">₹{user.wallet.toLocaleString()}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <button 
+                          <button
                             onClick={() => activeTab === 'credit' ? handleCreditWallet(user.id) : handleDebitWallet(user.id)}
-                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 shadow-md ${
-                              activeTab === 'credit' 
-                                ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:from-emerald-600 hover:to-green-600' 
-                                : 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600'
-                            }`}
+                            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 shadow-md ${activeTab === 'credit'
+                              ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:from-emerald-600 hover:to-green-600'
+                              : 'bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600'
+                              }`}
                           >
                             {activeTab === 'credit' ? 'Credit' : 'Debit'}
                           </button>
@@ -522,7 +483,7 @@ const WalletTable = () => {
                               <span className="px-3 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
                                 Approved
                               </span>
-                              <button 
+                              <button
                                 onClick={() => handleViewProof(request.id)}
                                 className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                                 title="View Proof"
@@ -532,19 +493,19 @@ const WalletTable = () => {
                             </div>
                           ) : (
                             <div className="flex items-center space-x-2">
-                              <button 
+                              <button
                                 onClick={() => handleApproveRequest(request.id)}
                                 className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:from-emerald-600 hover:to-green-600 transition-all duration-300 shadow-sm"
                               >
                                 Approve
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleRejectRequest(request.id)}
                                 className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-sm"
                               >
                                 Reject
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleViewProof(request.id)}
                                 className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                                 title="View Proof"
@@ -593,7 +554,7 @@ const WalletTable = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Lock User Wallet</h3>
               </div>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
@@ -607,7 +568,7 @@ const WalletTable = () => {
                     <option value="Navindra Singh 7300389828(AZU9578552905)">Navindra Singh 7300389828 (AZU9578552905)</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Wallet Amount</label>
                   <input
@@ -617,7 +578,7 @@ const WalletTable = () => {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 shadow-sm"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Lock Amount</label>
                   <input
@@ -629,7 +590,7 @@ const WalletTable = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setShowLockModal(false)}
@@ -660,7 +621,7 @@ const WalletTable = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">Release Lock Amount</h3>
               </div>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
@@ -674,7 +635,7 @@ const WalletTable = () => {
                     <option value="Navindra Singh 7300389828(AZU9578552905)">Navindra Singh 7300389828 (AZU9578552905)</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Lock Amount</label>
                   <input
@@ -684,7 +645,7 @@ const WalletTable = () => {
                     placeholder="Lock amount will appear here"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Release Amount</label>
                   <input
@@ -696,7 +657,7 @@ const WalletTable = () => {
                   />
                 </div>
               </div>
-              
+
               <div className="flex space-x-4 mt-8">
                 <button
                   onClick={() => setShowReleaseModal(false)}

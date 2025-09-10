@@ -28,6 +28,7 @@ const walletSlice = createSlice({
       state.isLoading = false;
       state.success = action.payload?.message || null;
       state.error = null;
+      if (action.payload?.message) toast.success(action.payload.message);
     },
     walletFail: (state, action) => {
       state.isLoading = false;
@@ -67,7 +68,7 @@ export const getWalletBalance = () => async (dispatch) => {
     dispatch(walletRequest());
     const { data } = await axios.get(`/wallet/balance`);
     dispatch(setBalance(data));
-    dispatch(walletSuccess(data));
+    // dispatch(walletSuccess(data));
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -75,7 +76,6 @@ export const getWalletBalance = () => async (dispatch) => {
   }
 };
 
-// Add funds (admin only or user top-up request)
 export const addFunds = (payload) => async (dispatch) => {
   try {
     dispatch(walletRequest());
@@ -86,13 +86,13 @@ export const addFunds = (payload) => async (dispatch) => {
         : {};
 
     const { data } = await axios.post(`/wallet/add-fund`, payload, config);
-
-    dispatch(getWalletBalance(data));
+    dispatch(walletSuccess(data));
+    dispatch(getWalletBalance());
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
     dispatch(walletFail(errMsg));
-    throw error; // ✅ so frontend can catch
+    throw error;
   }
 };
 
@@ -101,7 +101,8 @@ export const deductFunds = (payload) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.post(`/wallet/deduct-funds`, payload);
-    dispatch(getWalletBalance(data));
+    dispatch(walletSuccess(data));
+    dispatch(getWalletBalance());
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -110,12 +111,12 @@ export const deductFunds = (payload) => async (dispatch) => {
 };
 
 // Get transactions
-export const getWalletTransactions = () => async (dispatch) => {
+export const getWalletTransactions = (trnType) => async (dispatch) => {
   try {
     dispatch(walletRequest());
-    const { data } = await axios.get(`/wallet/transactions`);
+    const { data } = await axios.post(`/wallet/get-all-transactions`, trnType);
     dispatch(setTransactions(data));
-    dispatch(walletSuccess(data));
+    // dispatch(walletSuccess(data));
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -128,6 +129,7 @@ export const createOrder = (payload) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.post(`/wallet/create-order`, payload);
+    dispatch(walletSuccess(data));
     return data; // Razorpay frontend flow will handle this
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
@@ -140,7 +142,7 @@ export const verifyPayment = (payload) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.post(`/wallet/verify-payment`, payload);
-    toast.success("Payment verified successfully!");
+    dispatch(walletSuccess(data));
     dispatch(getWalletBalance());
     return data;
   } catch (error) {
@@ -154,7 +156,7 @@ export const approveTopup = (id) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.put(`/wallet/approve/${id}`);
-    toast.success("Topup approved successfully!");
+    dispatch(walletSuccess(data));
     dispatch(getWalletTransactions());
     return data;
   } catch (error) {
@@ -168,7 +170,7 @@ export const rejectTopup = (id) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.put(`/wallet/reject/${id}`);
-    toast.success("Topup rejected!");
+    dispatch(walletSuccess(data));
     dispatch(getWalletTransactions());
     return data;
   } catch (error) {

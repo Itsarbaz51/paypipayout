@@ -99,7 +99,6 @@ const AddFundRequest = () => {
               razorpay_signature: response.razorpay_signature,
             });
 
-            toast.success("Payment successful, waiting for admin approval!");
             setForm({ rrn: "", date: "", amount: "", file: null });
           } catch (err) {
             toast.error("Payment verification failed");
@@ -149,7 +148,6 @@ const AddFundRequest = () => {
 
     dispatch(addFunds(formData))
       .then(() => {
-        toast.success("Fund request submitted!");
         setForm((prev) => ({
           ...prev,
           rrn: "",
@@ -160,7 +158,7 @@ const AddFundRequest = () => {
       })
       .finally(() => setIsProcessing(false));
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
       {/* Header */}
@@ -217,11 +215,10 @@ const AddFundRequest = () => {
             </h3>
             <div className="space-y-3">
               <div
-                className={`p-4 rounded-xl border-2 cursor-pointer ${
-                  paymentMethod === "bank_transfer"
+                className={`p-4 rounded-xl border-2 cursor-pointer ${paymentMethod === "bank_transfer"
                     ? "border-indigo-500 bg-indigo-50"
                     : "border-slate-200"
-                }`}
+                  }`}
                 onClick={() => setPaymentMethod("bank_transfer")}
               >
                 <p className="font-semibold">Bank Transfer</p>
@@ -230,11 +227,10 @@ const AddFundRequest = () => {
                 </p>
               </div>
               <div
-                className={`p-4 rounded-xl border-2 cursor-pointer ${
-                  paymentMethod === "razorpay"
+                className={`p-4 rounded-xl border-2 cursor-pointer ${paymentMethod === "razorpay"
                     ? "border-indigo-500 bg-indigo-50"
                     : "border-slate-200"
-                }`}
+                  }`}
                 onClick={() => setPaymentMethod("razorpay")}
               >
                 <p className="font-semibold">Razorpay</p>
