@@ -77,17 +77,22 @@ export const getWalletBalance = () => async (dispatch) => {
 
 // Add funds (admin only or user top-up request)
 export const addFunds = (payload) => async (dispatch) => {
-  console.log(payload);
-  
   try {
     dispatch(walletRequest());
-    const { data } = await axios.post(`/wallet/add-fund`, payload);
-    toast.success("Funds added successfully!");
-    dispatch(getWalletBalance());
+
+    const config =
+      payload instanceof FormData
+        ? { headers: { "Content-Type": "multipart/form-data" } }
+        : {};
+
+    const { data } = await axios.post(`/wallet/add-fund`, payload, config);
+
+    dispatch(getWalletBalance(data));
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;
     dispatch(walletFail(errMsg));
+    throw error; // ✅ so frontend can catch
   }
 };
 
@@ -96,8 +101,7 @@ export const deductFunds = (payload) => async (dispatch) => {
   try {
     dispatch(walletRequest());
     const { data } = await axios.post(`/wallet/deduct-funds`, payload);
-    toast.success("Funds deducted successfully!");
-    dispatch(getWalletBalance());
+    dispatch(getWalletBalance(data));
     return data;
   } catch (error) {
     const errMsg = error?.response?.data?.message || error?.message;

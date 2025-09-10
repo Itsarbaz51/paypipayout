@@ -48,9 +48,16 @@ export const createRouter = (appProps) => {
             }
           />
           {/* Fixed KYC route for public */}
-          <Route path="kyc-submit" element={<KYCVerification />} />
         </Route>
 
+        <Route
+          path="kyc-submit"
+          element={
+            <ProtectedRoute currentUser={appProps.currentUser}>
+              <KYCVerification />
+            </ProtectedRoute>
+          }
+        />
         {/* Protected Routes with Main Layout */}
         <Route
           path="/"

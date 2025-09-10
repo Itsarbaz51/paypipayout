@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from "react";
-import {
-  CreditCard,
-  Upload,
-  Send,
-  CheckCircle,
-  Calendar,
-  Hash,
-  User,
-  DollarSign,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { CreditCard } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAdminBank } from "../../redux/slices/bankSlice";
 import { addFunds } from "../../redux/slices/walletSlice";
+import { toast } from "react-toastify";
+import axios from "axios";
 
-// Helper function for orderId
 const generateOrderId = (prefix = "ORD") => {
   const year = new Date().getFullYear();
   const randomDigits = Math.floor(1000 + Math.random() * 9000);
@@ -34,6 +26,9 @@ const AddFundRequest = () => {
     file: null,
   });
 
+  const [paymentMethod, setPaymentMethod] = useState("bank_transfer");
+  const [isProcessing, setIsProcessing] = useState(false);
+
   useEffect(() => {
     dispatch(getAdminBank());
   }, [dispatch]);
@@ -48,9 +43,6 @@ const AddFundRequest = () => {
       }));
     }
   }, [bankData]);
-
-  const [paymentMethod, setPaymentMethod] = useState("bank_transfer");
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,68 +59,108 @@ const AddFundRequest = () => {
     }));
   };
 
-  // Razorpay Payment Simulation
-  const handleRazorpayPayment = () => {
+  const handleRazorpayPayment = async () => {
     if (!form.amount || form.amount <= 0) {
-      alert("Please enter a valid amount");
+      toast.error("Please enter a valid amount");
       return;
     }
 
     setIsProcessing(true);
 
-    setTimeout(() => {
-      const mockPaymentId = "pay_" + Math.random().toString(36).substr(2, 9);
-      const mockOrderId = generateOrderId("RZP");
+    try {
+      // 1. Create order from backend
+      const { data } = await axios.post("/wallet/create-order", {
+        amount: form.amount,
+      });
 
-      dispatch(
-        addFunds({
-          amount: parseFloat(form.amount),
-          provider: "RAZORPAY",
-          paymentId: mockPaymentId,
-          orderId: mockOrderId,
-        })
-      );
+      const order = data.data;
 
-      setForm((prev) => ({
-        ...prev,
-        rrn: mockPaymentId,
-        date: new Date().toISOString().split("T")[0],
-      }));
+      // 2. Make sure Razorpay script is loaded
+      if (!window.Razorpay) {
+        toast.error("Razorpay SDK not loaded. Please refresh the page.");
+        setIsProcessing(false);
+        return;
+      }
 
-      alert(`Payment successful! Payment ID: ${mockPaymentId}`);
+      // 3. Razorpay checkout
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Your App Name",
+        description: "Wallet Top-up",
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            // 4. Verify payment with backend
+            await axios.post("/wallet/verify-payment", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            toast.success("Payment successful, waiting for admin approval!");
+            setForm({ rrn: "", date: "", amount: "", file: null });
+          } catch (err) {
+            toast.error("Payment verification failed");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: "Arbaz Khan",
+          email: "arbaz@example.com",
+          contact: "9876543210",
+        },
+        theme: { color: "#3399cc" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      toast.error("Unable to start payment");
       setIsProcessing(false);
-    }, 2000);
+    }
   };
 
-  // Bank Transfer Submit
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!form.amount || !form.rrn) {
-      alert("Please enter amount and RRN/UTR number");
+    if (!form.amount || form.amount <= 0) {
+      toast.error("Please enter a valid amount");
       return;
     }
-
+    if (!form.rrn) {
+      toast.error("RRN/UTR is required");
+      return;
+    }
+    if (!form.file) {
+      toast.error("Receipt is required");
+      return;
+    }
     setIsProcessing(true);
 
     const orderId = generateOrderId("BT");
+    const formData = new FormData();
+    formData.append("amount", parseFloat(form.amount));
+    formData.append("provider", "BANK_TRANSFER");
+    formData.append("paymentId", form.rrn);
+    formData.append("orderId", orderId);
+    formData.append("paymentImage", form.file);
 
-    dispatch(
-      addFunds({
-        amount: parseFloat(form.amount),
-        provider: "BANK_TRANSFER",
-        paymentId: form.rrn,
-        orderId: orderId,
-        paymentImage: form.file.name,
+    dispatch(addFunds(formData))
+      .then(() => {
+        toast.success("Fund request submitted!");
+        setForm((prev) => ({
+          ...prev,
+          rrn: "",
+          date: "",
+          amount: "",
+          file: null,
+        }));
       })
-    );
-
-    setTimeout(() => {
-      alert("Fund request submitted successfully!");
-      setIsProcessing(false);
-    }, 1000);
+      .finally(() => setIsProcessing(false));
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
       {/* Header */}

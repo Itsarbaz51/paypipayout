@@ -7,7 +7,7 @@ import {
   Building,
   FileText,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { kycSubmit } from "../../redux/slices/kycSlice";
 import { useNavigate } from "react-router-dom";
 import { addBank } from "../../redux/slices/bankSlice";
@@ -168,6 +168,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const message = useSelector((state) => state.auth.message);
 
   const handleKYCSubmit = async () => {
     const allErrors = {};
@@ -229,7 +230,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
 
       if (
         kycRes.data.kycStatus === "PENDING" &&
-        bankRes.data.isVerified === false
+        bankRes.data.isVerified === false && message === "Logged out successfully"
       ) {
         navigate("/");
       } else {
