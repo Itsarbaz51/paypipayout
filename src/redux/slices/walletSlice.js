@@ -112,6 +112,8 @@ export const deductFunds = (payload) => async (dispatch) => {
 
 // Get transactions
 export const getWalletTransactions = (trnType) => async (dispatch) => {
+  console.log(trnType);
+
   try {
     dispatch(walletRequest());
     const { data } = await axios.post(`/wallet/get-all-transactions`, trnType);
@@ -152,10 +154,15 @@ export const verifyPayment = (payload) => async (dispatch) => {
 };
 
 //  Approve topup (Admin only)
-export const approveTopup = (id) => async (dispatch) => {
+export const updateTopup = (topupData) => async (dispatch) => {
+  console.log(topupData);
+
   try {
     dispatch(walletRequest());
-    const { data } = await axios.put(`/wallet/approve/${id}`);
+    const { data } = await axios.put(
+      `/wallet/update-wallet-topup/${topupData.id}`,
+      { status: topupData.status }
+    );
     dispatch(walletSuccess(data));
     dispatch(getWalletTransactions());
     return data;
