@@ -2,19 +2,14 @@ import React, { useState } from "react";
 
 const settingsData = [
   { key: "logo", label: "Logo", type: "text" },
-  { key: "unipich", label: "Unipich", type: "text" },
-  { key: "crp", label: "CRP", type: "text" },
-  { key: "activePackages", label: "Active Packages", type: "text" },
+  { key: "favicon", label: "Favicon", type: "url" },
   { key: "phone", label: "Phone", type: "text" },
   { key: "email", label: "Email", type: "email" },
   { key: "facebook", label: "Facebook", type: "url" },
   { key: "twitter", label: "Twitter", type: "url" },
   { key: "instagram", label: "Instagram", type: "url" },
-  { key: "website", label: "Website", type: "url" },
   { key: "linkedin", label: "LinkedIn", type: "url" },
   { key: "whatsapp", label: "WhatsApp", type: "text" },
-  { key: "description", label: "Description", type: "textarea" },
-  // Add more fields as needed
 ];
 
 const SettingsForm = () => {

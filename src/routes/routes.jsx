@@ -10,7 +10,7 @@ import MainLayout from "../layouts/MainLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 import Dashboard from "../pages/Dashboard";
-import PayinComponent from "../components/PayinComponent";
+// import PayinComponent from "../components/PayinComponent";
 import UserManagement from "../components/UserManagement";
 import TransactionHistory from "../components/TransactionHistory";
 import Reports from "../components/Reports";
@@ -22,7 +22,6 @@ import Contact from "../pages/landing/Contact";
 
 import AllKycTable from "../components/tabels/AllKycTable";
 import PayoutTable from "../components/tabels/PayoutTable";
-// import CommissionCharges from "../components/sh/CommissionCharges";
 import Setting from "../components/Setting";
 import EmployeeTable from "../components/tabels/EmployeeTable";
 import MembersTable from "../components/tabels/MembersTable";
@@ -30,6 +29,7 @@ import WalletTable from "../components/tabels/Wallet";
 import Register from "../pages/auth/Register";
 import KYCVerification from "../components/forms/KYCForm";
 import AddFundRequest from "../components/forms/AddFundRequest";
+import CommissionCharges from "../pages/CommissionCharges";
 
 export const createRouter = (appProps) => {
   return createBrowserRouter(
@@ -41,6 +41,7 @@ export const createRouter = (appProps) => {
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
           <Route path="register" element={<Register />} />
+          {/* <Route path="j" element={<PayoutTransactionsHistory />} /> */}
           <Route
             path="login"
             element={
@@ -82,7 +83,7 @@ export const createRouter = (appProps) => {
             }
           />
 
-          <Route
+          {/* <Route
             path="payin"
             element={
               <PayinComponent
@@ -95,7 +96,7 @@ export const createRouter = (appProps) => {
                 commissionSettings={appProps.commissionSettings}
               />
             }
-          />
+          /> */}
 
           <Route
             path="payout"
@@ -134,7 +135,7 @@ export const createRouter = (appProps) => {
             }
           />
 
-          {/* <Route
+          <Route
             path="commission"
             element={
               <CommissionCharges
@@ -142,7 +143,7 @@ export const createRouter = (appProps) => {
                 setCommissionSettings={appProps.setCommissionSettings}
               />
             }
-          /> */}
+          />
 
           <Route
             path="reports"

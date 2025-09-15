@@ -4,6 +4,7 @@ import kycReducer from "./slices/kycSlice.js";
 import userReducer from "./slices/userSlice.js";
 import bankReducer from "./slices/bankSlice.js";
 import walletReducer from "./slices/walletSlice.js";
+import commissionReducer from "./slices/commissionSlice.js";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     user: userReducer,
     bank: bankReducer,
     wallet: walletReducer,
+    commission: commissionReducer,
   },
 });
 

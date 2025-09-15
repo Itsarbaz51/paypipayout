@@ -153,7 +153,7 @@ export const verifyPayment = (payload) => async (dispatch) => {
   }
 };
 
-//  Approve topup (Admin only)
+//  update topup (Admin only)
 export const updateTopup = (topupData) => async (dispatch) => {
   console.log(topupData);
 
@@ -163,20 +163,6 @@ export const updateTopup = (topupData) => async (dispatch) => {
       `/wallet/update-wallet-topup/${topupData.id}`,
       { status: topupData.status }
     );
-    dispatch(walletSuccess(data));
-    dispatch(getWalletTransactions());
-    return data;
-  } catch (error) {
-    const errMsg = error?.response?.data?.message || error?.message;
-    dispatch(walletFail(errMsg));
-  }
-};
-
-// Reject topup (Admin only)
-export const rejectTopup = (id) => async (dispatch) => {
-  try {
-    dispatch(walletRequest());
-    const { data } = await axios.put(`/wallet/reject/${id}`);
     dispatch(walletSuccess(data));
     dispatch(getWalletTransactions());
     return data;

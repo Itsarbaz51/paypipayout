@@ -17,6 +17,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
   const location = useLocation();
 
   const menuItems = [
+    // --- MAIN ---
     {
       id: "dashboard",
       label: "Dashboard",
@@ -25,17 +26,10 @@ const Sidebar = ({ currentUser, onLogout }) => {
       group: "main",
     },
     {
-      id: "wallet",
-      label: "Wallet",
-      icon: Wallet,
-      path: "/wallet",
-      group: "main",
-    },
-    {
-      id: "payout",
-      label: "Payouts",
-      icon: ArrowDownCircle,
-      path: "/payout",
+      id: "add-fund",
+      label: "Add Fund",
+      icon: BadgeIndianRupee,
+      path: "/add-fund",
       group: "main",
     },
     {
@@ -53,13 +47,6 @@ const Sidebar = ({ currentUser, onLogout }) => {
       group: "main",
     },
     {
-      id: "add-fund",
-      label: "Add Fund",
-      icon: BadgeIndianRupee,
-      path: "/add-fund",
-      group: "main",
-    },
-    {
       id: "commission",
       label: "Commission",
       icon: Percent,
@@ -67,12 +54,28 @@ const Sidebar = ({ currentUser, onLogout }) => {
       group: "main",
     },
 
-    // --- ADMIN ONLY ITEMS ---
+    // --- SERVICE (non-admin) ---
+    {
+      id: "payout",
+      label: "Payouts",
+      icon: ArrowDownCircle,
+      path: "/payout",
+      group: "service",
+    },
+
+    // --- ADMIN ONLY ---
     {
       id: "kyc",
       label: "KYC Requests",
       icon: Shield,
       path: "/all-kyc",
+      group: "admin",
+    },
+    {
+      id: "wallet",
+      label: "Wallet",
+      icon: Wallet,
+      path: "/wallet",
       group: "admin",
     },
     {
@@ -90,7 +93,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
       group: "admin",
     },
 
-    // --- SYSTEM ITEMS ---
+    // --- SYSTEM ---
     {
       id: "settings",
       label: "Settings",
@@ -100,12 +103,11 @@ const Sidebar = ({ currentUser, onLogout }) => {
     },
   ];
 
-  // Role ke hisaab se filter karenge
   const isAdmin = currentUser.role === "ADMIN";
 
-  // Agar admin hai to "add-fund" ko skip karo
+  // Filter menus by role
   const mainItems = menuItems.filter((item) => {
-    if (isAdmin && item.id === "add-fund") return false;
+    if (isAdmin && item.id === "add-fund") return false; // Admins don’t need "Add Fund"
     return item.group === "main";
   });
 
@@ -114,6 +116,9 @@ const Sidebar = ({ currentUser, onLogout }) => {
     : [];
   const systemItems = isAdmin
     ? menuItems.filter((item) => item.group === "system")
+    : [];
+  const serviceItems = !isAdmin
+    ? menuItems.filter((item) => item.group === "service")
     : [];
 
   const MenuItem = ({ item }) => {
@@ -137,18 +142,24 @@ const Sidebar = ({ currentUser, onLogout }) => {
     );
   };
 
-  const MenuSection = ({ title, items }) => (
-    <div className="mb-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 px-3">
-        {title}
-      </h3>
-      <div className="space-y-1">
-        {items.map((item) => (
-          <MenuItem key={item.id} item={item} />
-        ))}
+  const MenuSection = ({ title, items }) =>
+    items.length > 0 && (
+      <div className="mb-6">
+        <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 px-3">
+          {title}
+        </h3>
+        <div className="space-y-1">
+          {items.map((item) => (
+            <MenuItem key={item.id} item={item} />
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+
+  const formattedRole = currentUser.role
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 
   return (
     <div className="w-64 flex flex-col fixed h-screen border-r border-gray-300">
@@ -160,9 +171,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
           </div>
           <div>
             <h2 className="text-lg font-bold">Payment System</h2>
-            <p className="text-xs">
-              {currentUser.role.replace("_", " ")} Panel
-            </p>
+            <p className="text-xs">{formattedRole} Panel</p>
           </div>
         </div>
       </div>
@@ -176,9 +185,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
             </div>
             <div className="ml-3 flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{currentUser.name}</p>
-              <p className="text-xs capitalize truncate">
-                {currentUser.role.replace("_", " ")}
-              </p>
+              <p className="text-xs capitalize truncate">{formattedRole}</p>
             </div>
           </div>
           <div className="bg-gray-200 rounded-lg p-2">
@@ -187,7 +194,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
               <Wallet className="h-3 w-3" />
             </div>
             <p className="text-sm font-semibold mt-1">
-              ₹{currentUser?.walletBalance?.toLocaleString()}
+              ₹{currentUser?.walletBalance?.toLocaleString() || "0"}
             </p>
           </div>
         </div>
@@ -196,12 +203,9 @@ const Sidebar = ({ currentUser, onLogout }) => {
       {/* Navigation */}
       <div className="flex-1 px-4 pb-4 overflow-y-auto">
         <MenuSection title="Main" items={mainItems} />
-        {isAdmin && adminItems.length > 0 && (
-          <MenuSection title="Administration" items={adminItems} />
-        )}
-        {isAdmin && systemItems.length > 0 && (
-          <MenuSection title="System" items={systemItems} />
-        )}
+        {isAdmin && <MenuSection title="Administration" items={adminItems} />}
+        {isAdmin && <MenuSection title="System" items={systemItems} />}
+        {!isAdmin && <MenuSection title="Services" items={serviceItems} />}
       </div>
 
       {/* Logout */}

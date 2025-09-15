@@ -82,6 +82,13 @@ const loginLogsData = [
 
 const settingsData = [
   {
+    key: "name",
+    label: "Name",
+    type: "text",
+    icon: SettingsIcon,
+    category: "company",
+  },
+  {
     key: "logo",
     label: "Company Logo",
     type: "text",
@@ -89,26 +96,13 @@ const settingsData = [
     category: "company",
   },
   {
-    key: "unipich",
-    label: "Unipich",
+    key: "favicon",
+    label: "Favicon",
     type: "text",
     icon: SettingsIcon,
     category: "company",
   },
-  {
-    key: "crp",
-    label: "CRP",
-    type: "text",
-    icon: SettingsIcon,
-    category: "company",
-  },
-  {
-    key: "activePackages",
-    label: "Active Packages",
-    type: "text",
-    icon: SettingsIcon,
-    category: "company",
-  },
+
   {
     key: "phone",
     label: "Phone Number",
@@ -164,13 +158,6 @@ const settingsData = [
     type: "text",
     icon: MessageCircle,
     category: "contact",
-  },
-  {
-    key: "description",
-    label: "Company Description",
-    type: "textarea",
-    icon: Building2,
-    category: "company",
   },
 ];
 
