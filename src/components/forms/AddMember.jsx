@@ -1,124 +1,116 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { registation } from "../../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
+import HeaderSection from "../ui/HeaderSection";
+import Title from "../ui/Title";
+import ButtonField from "../ui/ButtonField";
 
-const AddMember = () => {
-  const [search, setSearch] = useState("");
+export default function AddMemer({ onClose }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "STATE_HOLDER",
+  });
 
-  // Dummy empty members list, you can replace with actual data
-  const members = [];
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const data = dispatch(registation(formData));
+    setMessage("");
+    setLoading(false);
+    navigate("/login");
+  };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      {/* Header */}
-      <div style={{
-        backgroundColor: "#dbe9ff",
-        padding: "15px 20px",
-        borderRadius: "8px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: "30px"
-      }}>
-        <div>
-          <h2 style={{ margin: 0 }}>Add Member</h2>
-          <p style={{ margin: "5px 0 0", color: "#555" }}>
-            Dashboard &nbsp;•&nbsp; Add Member
-          </p>
+    <div className="flex items-center justify-center">
+      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
+        <div className="flex justify-between space-y-3.5">
+          <Title />
+
+          <span onClick={onClose}>
+            <X />
+          </span>
         </div>
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/1040/1040228.png"
-          alt="Add Member Icon"
-          style={{ width: 60, height: 60 }}
-        />
-      </div>
+        {message && (
+          <div className="mb-4 text-center text-sm text-red-500">{message}</div>
+        )}
 
-      {/* Search and Add Button */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        marginBottom: "20px",
-        backgroundColor: "white",
-        padding: "10px 20px",
-        borderRadius: "8px",
-        boxShadow: "0 0 8px rgba(0,0,0,0.1)"
-      }}>
-        <input
-          type="search"
-          placeholder="Search Members..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            width: "300px",
-            padding: "8px 12px",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            fontSize: "16px"
-          }}
-        />
-        <button
-          style={{
-            backgroundColor: "#3a86ff",
-            color: "white",
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "16px"
-          }}
-          onClick={() => alert("Add Member clicked")}
-        >
-          Add Member
-        </button>
-      </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
 
-      {/* Members Table */}
-      <div style={{
-        backgroundColor: "white",
-        borderRadius: "8px",
-        boxShadow: "0 0 8px rgba(0,0,0,0.1)",
-        padding: "20px"
-      }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #ccc" }}>
-              <th style={{ padding: "10px" }}>
-                <input type="checkbox" />
-              </th>
-              <th style={{ padding: "10px", textAlign: "left", color: "#555" }}>Name</th>
-              <th style={{ padding: "10px", textAlign: "left", color: "#555" }}>Email</th>
-              <th style={{ padding: "10px", textAlign: "left", color: "#555" }}>Phone</th>
-              <th style={{ padding: "10px", textAlign: "left", color: "#555" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.length === 0 ? (
-              <tr>
-                <td colSpan="5" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
-                  No members found.
-                </td>
-              </tr>
-            ) : (
-              members.map((member, index) => (
-                <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
-                  <td style={{ padding: "10px" }}>
-                    <input type="checkbox" />
-                  </td>
-                  <td style={{ padding: "10px" }}>{member.name}</td>
-                  <td style={{ padding: "10px" }}>{member.email}</td>
-                  <td style={{ padding: "10px" }}>{member.phone}</td>
-                  <td style={{ padding: "10px" }}>
-                    {/* Add your action buttons here */}
-                    <button>Edit</button>
-                    <button>Delete</button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <input
+            type="text"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            required
+          />
+
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+          >
+            <option value="STATE_HOLDER">State Holder</option>
+            <option value="MASTER_DISTRIBUTOR">Master Distributer</option>
+            <option value="DISTRIBUTOR">Distributer</option>
+            <option value="AGENT">Agent</option>
+          </select>
+
+          <ButtonField
+            type="submit"
+            isDisabled={loading}
+            icon={null} // yaha se koi icon pass nahi kar rahe
+            isOpen={null}
+            btncss="w-full bg-black/90 text-white py-2 rounded-lg hover:bg-black cursor-pointer transition disabled:bg-gray-400 "
+            name={loading ? "Registering..." : "Register"}
+          />
+        </form>
       </div>
     </div>
   );
-};
-
-export default AddMember;
+}

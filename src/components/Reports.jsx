@@ -13,6 +13,8 @@ import {
   PieChart,
   Eye,
 } from "lucide-react";
+import PageHeader from "./ui/PageHeader";
+import StateCard from "./ui/StateCard";
 
 const Reports = ({ currentUser, transactions, users }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -154,282 +156,201 @@ const Reports = ({ currentUser, transactions, users }) => {
   ];
 
   return (
-    <div className="bg-gray-50  p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Breadcrumb */}
-        <div className="flex items-center text-sm text-gray-500 mb-4">
-          <span>Dashboard</span>
-          <span className="mx-2">•</span>
-          <span className="text-gray-900">Financial Reports</span>
-        </div>
+    <div className="space-y-4">
+      <PageHeader
+        breadcrumb={["Dashboard", "Financial Reports"]}
+        title="Financial Reports"
+        description="Monitor your financial performance and user analytics"
+      />
 
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((stat, index) => (
+          <StateCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            iconBg={stat.bgColor}
+            iconColor={stat.textColor}
+            change={stat.change}
+            changeType={stat.changeType}
+          />
+        ))}
+      </div>
+
+      {/* User-wise Report Table */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Financial Reports
-            </h1>
-            <p className="text-gray-600">
-              Monitor your financial performance and user analytics
-            </p>
-          </div>
-          <div className="flex gap-3 mt-4 sm:mt-0">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-              <Calendar className="h-4 w-4 mr-2" />
-              Date Range
-            </button>
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Analytics
-            </button>
-            <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </button>
-          </div>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statCards.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
-                  <div className="flex items-center mt-2">
-                    <span
-                      className={`text-xs font-medium ${
-                        stat.changeType === "increase"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {stat.change}
-                    </span>
-                    <span className="text-xs text-gray-500 ml-1">
-                      vs last month
-                    </span>
-                  </div>
-                </div>
-                <div className={`p-3 rounded-xl ${stat.bgColor}`}>
-                  <stat.icon className={`h-6 w-6 ${stat.textColor}`} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Net Balance Summary */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm">
-          <div className="flex items-center justify-between">
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Net Balance
-              </h3>
-              <p className="text-gray-600">Overall financial position</p>
-            </div>
-            <div className="text-right">
-              <div
-                className={`text-3xl font-bold ${
-                  totals.netBalance >= 0 ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                ₹{totals.netBalance.toLocaleString()}
-              </div>
-              <p className="text-sm text-gray-500 mt-1">
-                {totals.netBalance >= 0 ? "Profit" : "Loss"}
+              <h2 className="text-xl font-semibold text-gray-900">
+                User-wise Financial Report
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                Detailed breakdown by user
               </p>
             </div>
+            <div className="flex gap-3 mt-4 sm:mt-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* User-wise Report Table */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-          {/* Header */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  User-wise Financial Report
-                </h2>
-                <p className="text-gray-600 text-sm mt-1">
-                  Detailed breakdown by user
-                </p>
-              </div>
-              <div className="flex gap-3 mt-4 sm:mt-0">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="Search users..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    USER DETAILS
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ROLE
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    PAYIN
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    PAYOUT
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    COMMISSION
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    NET BALANCE
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    TRANSACTIONS
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ACTIONS
-                  </th>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  USER DETAILS
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ROLE
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PAYIN
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PAYOUT
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  COMMISSION
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  NET BALANCE
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  TRANSACTIONS
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredReportData.map((data, index) => (
+                <tr key={index} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div
+                        className={`h-10 w-10 rounded-full ${getAvatarColor(
+                          data.user.name
+                        )} flex items-center justify-center text-white font-medium text-sm`}
+                      >
+                        {getInitials(data.user.name)}
+                      </div>
+                      <div className="ml-3">
+                        <div className="text-sm font-medium text-gray-900">
+                          {data.user.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {data.user.email}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(
+                        data.user.role
+                      )}`}
+                    >
+                      {data.user.role === "super_admin"
+                        ? "Super Admin"
+                        : data.user.role.charAt(0).toUpperCase() +
+                          data.user.role.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <TrendingUp className="h-4 w-4 text-green-500 mr-2" />
+                      <span className="text-sm font-medium text-green-600">
+                        +₹{data.payin.toLocaleString()}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <TrendingDown className="h-4 w-4 text-red-500 mr-2" />
+                      <span className="text-sm font-medium text-red-600">
+                        -₹{data.payout.toLocaleString()}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <DollarSign className="h-4 w-4 text-blue-500 mr-2" />
+                      <span className="text-sm font-medium text-blue-600">
+                        ₹{data.commission.toFixed(2)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                        data.netBalance >= 0
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : "bg-red-100 text-red-800 border border-red-200"
+                      }`}
+                    >
+                      ₹{data.netBalance.toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <FileText className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm text-gray-900">
+                        {data.transactionCount}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center gap-2">
+                      <button className="text-gray-400 hover:text-blue-600 p-1">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                      <button className="text-gray-400 hover:text-green-600 p-1">
+                        <BarChart3 className="h-4 w-4" />
+                      </button>
+                      <button className="text-gray-400 hover:text-indigo-600 p-1">
+                        <PieChart className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredReportData.map((data, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div
-                          className={`h-10 w-10 rounded-full ${getAvatarColor(
-                            data.user.name
-                          )} flex items-center justify-center text-white font-medium text-sm`}
-                        >
-                          {getInitials(data.user.name)}
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {data.user.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {data.user.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(
-                          data.user.role
-                        )}`}
-                      >
-                        {data.user.role === "super_admin"
-                          ? "Super Admin"
-                          : data.user.role.charAt(0).toUpperCase() +
-                            data.user.role.slice(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <TrendingUp className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-sm font-medium text-green-600">
-                          +₹{data.payin.toLocaleString()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <TrendingDown className="h-4 w-4 text-red-500 mr-2" />
-                        <span className="text-sm font-medium text-red-600">
-                          -₹{data.payout.toLocaleString()}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <DollarSign className="h-4 w-4 text-blue-500 mr-2" />
-                        <span className="text-sm font-medium text-blue-600">
-                          ₹{data.commission.toFixed(2)}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                          data.netBalance >= 0
-                            ? "bg-green-100 text-green-800 border border-green-200"
-                            : "bg-red-100 text-red-800 border border-red-200"
-                        }`}
-                      >
-                        ₹{data.netBalance.toLocaleString()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <FileText className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">
-                          {data.transactionCount}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center gap-2">
-                        <button className="text-gray-400 hover:text-blue-600 p-1">
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-400 hover:text-green-600 p-1">
-                          <BarChart3 className="h-4 w-4" />
-                        </button>
-                        <button className="text-gray-400 hover:text-indigo-600 p-1">
-                          <PieChart className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-          {/* Footer */}
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {filteredReportData.length} of {reportData.length} users
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing {filteredReportData.length} of {reportData.length} users
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600">
+              Profitable Users:{" "}
+              {filteredReportData.filter((data) => data.netBalance > 0).length}
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-sm text-gray-600">
-                Profitable Users:{" "}
-                {
-                  filteredReportData.filter((data) => data.netBalance > 0)
-                    .length
-                }
-              </div>
-              <div className="text-sm text-gray-600">
-                Loss Users:{" "}
-                {
-                  filteredReportData.filter((data) => data.netBalance < 0)
-                    .length
-                }
-              </div>
+            <div className="text-sm text-gray-600">
+              Loss Users:{" "}
+              {filteredReportData.filter((data) => data.netBalance < 0).length}
             </div>
           </div>
         </div>

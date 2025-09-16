@@ -160,8 +160,7 @@ const AddFundRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-6">
-      {/* Header */}
+    <div>
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-slate-200">
         <div className="flex items-center justify-between">
           <div>

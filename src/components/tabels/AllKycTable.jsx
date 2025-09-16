@@ -18,26 +18,29 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteKyc, getKycAll, verifyKyc } from "../../redux/slices/kycSlice";
+import StateCard from "../ui/StateCard";
+import PageHeader from "../ui/PageHeader";
 
 const AllKycTable = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getKycAll());
   }, []);
 
   const kycProfilesRaw = useSelector((state) => state.kyc?.kycData);
   const kycProfiles = Array.isArray(kycProfilesRaw) ? kycProfilesRaw : [];
-  
+
   const filteredProfiles = kycProfiles?.filter((user) => {
     const matchesSearch =
       user.User?.name?.toLowerCase().includes(search.toLowerCase()) ||
       user.User?.phone?.includes(search) ||
       user.panNumber?.toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus = statusFilter === "ALL" || user.kycStatus === statusFilter;
+    const matchesStatus =
+      statusFilter === "ALL" || user.kycStatus === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -47,122 +50,99 @@ const AllKycTable = () => {
       VERIFIED: {
         classes: "bg-emerald-50 text-emerald-700 border border-emerald-200",
         icon: <Shield className="w-3 h-3" />,
-        dot: "bg-emerald-500"
+        dot: "bg-emerald-500",
       },
       PENDING: {
         classes: "bg-amber-50 text-amber-700 border border-amber-200",
         icon: <Clock className="w-3 h-3" />,
-        dot: "bg-amber-500"
+        dot: "bg-amber-500",
       },
       REJECTED: {
         classes: "bg-red-50 text-red-700 border border-red-200",
         icon: <AlertCircle className="w-3 h-3" />,
-        dot: "bg-red-500"
+        dot: "bg-red-500",
       },
     };
 
-    return configs[status] || {
-      classes: "bg-gray-50 text-gray-700 border border-gray-200",
-      icon: <FileText className="w-3 h-3" />,
-      dot: "bg-gray-500"
-    };
+    return (
+      configs[status] || {
+        classes: "bg-gray-50 text-gray-700 border border-gray-200",
+        icon: <FileText className="w-3 h-3" />,
+        dot: "bg-gray-500",
+      }
+    );
   };
 
   const handleKycVerification = (action, kycId) => {
     if (action === "verified") {
-      dispatch(verifyKyc(kycId, "verified"))
+      dispatch(verifyKyc(kycId, "verified"));
     } else if (action === "reject") {
-      dispatch(verifyKyc(kycId, "rejected"))
+      dispatch(verifyKyc(kycId, "rejected"));
     } else if (action === "delete") {
-      dispatch(deleteKyc(kycId))
+      dispatch(deleteKyc(kycId));
     }
   };
 
   const getStatusCounts = () => {
     return {
       total: kycProfiles?.length,
-      verified: kycProfiles?.filter(p => p.kycStatus === 'VERIFIED').length,
-      pending: kycProfiles?.filter(p => p.kycStatus === 'PENDING').length,
-      rejected: kycProfiles?.filter(p => p.kycStatus === 'REJECTED').length,
+      verified: kycProfiles?.filter((p) => p.kycStatus === "VERIFIED").length,
+      pending: kycProfiles?.filter((p) => p.kycStatus === "PENDING").length,
+      rejected: kycProfiles?.filter((p) => p.kycStatus === "REJECTED").length,
     };
   };
 
   const statusCounts = getStatusCounts();
+  const statusCards = [
+    {
+      title: "Total",
+      value: statusCounts.total,
+      icon: User,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+    },
+    {
+      title: "Verified",
+      value: statusCounts.verified,
+      icon: Shield,
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+    },
+    {
+      title: "Pending",
+      value: statusCounts.pending,
+      icon: Clock,
+      iconBg: "bg-amber-100",
+      iconColor: "text-amber-600",
+    },
+    {
+      title: "Rejected",
+      value: statusCounts.rejected,
+      icon: AlertCircle,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header Section */}
+    <div>
       <div className="mb-8">
-        <nav className="flex items-center mb-4 text-sm text-gray-600">
-          <span>Dashboard</span>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">KYC Management</span>
-        </nav>
-
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              KYC Profiles
-            </h1>
-            <p className="text-gray-600">
-              Review and manage customer verification documents
-            </p>
-          </div>
+          <PageHeader
+            breadcrumb={["Dashboard", "KYC Management"]}
+            title="KYC Profiles"
+            description="Review and manage customer verification documents"
+          />
 
           {/* Status Overview Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{statusCounts.total}</p>
-                </div>
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <User className="w-5 h-5 text-blue-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Verified</p>
-                  <p className="text-2xl font-bold text-emerald-600">{statusCounts.verified}</p>
-                </div>
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <Shield className="w-5 h-5 text-emerald-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-amber-600">{statusCounts.pending}</p>
-                </div>
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-amber-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Rejected</p>
-                  <p className="text-2xl font-bold text-red-600">{statusCounts.rejected}</p>
-                </div>
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-red-600" />
-                </div>
-              </div>
-            </div>
+            {statusCards.map((card, idx) => (
+              <StateCard key={idx} {...card} />
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Main Content Card */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {/* Enhanced Toolbar */}
         <div className="p-6 border-b border-gray-200 bg-gray-50/50">
@@ -249,7 +229,9 @@ const AllKycTable = () => {
                             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-md">
                               {kyc.kyc?.name?.[0]?.toUpperCase() || "U"}
                             </div>
-                            <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${statusConfig.dot} rounded-full border-2 border-white`}></div>
+                            <div
+                              className={`absolute -bottom-1 -right-1 w-4 h-4 ${statusConfig.dot} rounded-full border-2 border-white`}
+                            ></div>
                           </div>
                           <div className="ml-4">
                             <p className="text-sm font-semibold text-gray-900">
@@ -294,7 +276,10 @@ const AllKycTable = () => {
                         <div className="flex items-start">
                           <MapPin className="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" />
                           <div className="text-sm text-gray-900 max-w-xs">
-                            <div className="truncate" title={`${kyc.shopAddress}, ${kyc.district}, ${kyc.state} - ${kyc.pinCode}`}>
+                            <div
+                              className="truncate"
+                              title={`${kyc.shopAddress}, ${kyc.district}, ${kyc.state} - ${kyc.pinCode}`}
+                            >
                               {kyc.shopAddress}
                             </div>
                             <div className="text-xs text-gray-600 truncate">
@@ -306,7 +291,9 @@ const AllKycTable = () => {
 
                       {/* Enhanced Status */}
                       <td className="px-6 py-5">
-                        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.classes}`}>
+                        <div
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.classes}`}
+                        >
                           {statusConfig.icon}
                           {kyc.kycStatus}
                         </div>
@@ -319,7 +306,9 @@ const AllKycTable = () => {
                             <>
                               {/* Verified button */}
                               <button
-                                onClick={() => handleKycVerification("verified", kyc.id)}
+                                onClick={() =>
+                                  handleKycVerification("verified", kyc.id)
+                                }
                                 className="p-2.5 text-gray-400 hover:text-emerald-600 bg-emerald-50 hover:bg-green-100 rounded-lg transition-all duration-200 group"
                                 title="Verified KYC"
                               >
@@ -328,7 +317,9 @@ const AllKycTable = () => {
 
                               {/* Reject button */}
                               <button
-                                onClick={() => handleKycVerification("reject", kyc.id)}
+                                onClick={() =>
+                                  handleKycVerification("reject", kyc.id)
+                                }
                                 className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-100 bg-red-50 rounded-lg transition-all duration-200 group"
                                 title="Reject KYC"
                               >
@@ -339,7 +330,9 @@ const AllKycTable = () => {
 
                           {kyc.kycStatus === "VERIFIED" && (
                             <button
-                              onClick={() => handleKycVerification("reject", kyc.id)}
+                              onClick={() =>
+                                handleKycVerification("reject", kyc.id)
+                              }
                               className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-100 bg-red-50 rounded-lg transition-all duration-200 group"
                               title="Reject KYC"
                             >
@@ -349,7 +342,9 @@ const AllKycTable = () => {
 
                           {kyc.kycStatus === "REJECTED" && (
                             <button
-                              onClick={() => handleKycVerification("verified", kyc.id)}
+                              onClick={() =>
+                                handleKycVerification("verified", kyc.id)
+                              }
                               className="p-2.5 text-gray-400 hover:text-emerald-600 bg-emerald-50 hover:bg-green-100 rounded-lg transition-all duration-200 group"
                               title="Verified KYC"
                             >
@@ -364,7 +359,9 @@ const AllKycTable = () => {
                             <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
                           </button>
                           <button
-                            onClick={() => handleKycVerification("delete", kyc.id)}
+                            onClick={() =>
+                              handleKycVerification("delete", kyc.id)
+                            }
                             className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
                             title="Delete Profile"
                           >
@@ -382,7 +379,9 @@ const AllKycTable = () => {
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                         <Search className="w-8 h-8 text-gray-400" />
                       </div>
-                      <p className="text-lg font-medium text-gray-900 mb-2">No profiles found</p>
+                      <p className="text-lg font-medium text-gray-900 mb-2">
+                        No profiles found
+                      </p>
                       <p className="text-sm text-gray-600 max-w-sm">
                         {search || statusFilter !== "ALL"
                           ? "Try adjusting your search criteria or filters"
@@ -402,9 +401,13 @@ const AllKycTable = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center text-sm text-gray-700">
                 <span>Showing </span>
-                <span className="font-semibold mx-1">{filteredProfiles?.length}</span>
+                <span className="font-semibold mx-1">
+                  {filteredProfiles?.length}
+                </span>
                 <span> of </span>
-                <span className="font-semibold mx-1">{kycProfiles?.length}</span>
+                <span className="font-semibold mx-1">
+                  {kycProfiles?.length}
+                </span>
                 <span> entries</span>
                 {(search || statusFilter !== "ALL") && (
                   <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">

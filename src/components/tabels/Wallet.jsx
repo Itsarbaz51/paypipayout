@@ -19,6 +19,7 @@ import {
   getWalletTransactions,
   updateTopup,
 } from "../../redux/slices/walletSlice";
+import StateCard from "../ui/StateCard";
 
 const WalletTable = () => {
   const [activeTab, setActiveTab] = useState("transactions");
@@ -188,18 +189,15 @@ const WalletTable = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
-          <div
+          <StateCard
             key={i}
-            className="bg-white rounded-xl p-6 shadow-md flex justify-between items-center"
-          >
-            <div>
-              <p className="text-sm text-gray-600">{stat.name}</p>
-              <p className="text-2xl font-bold">{stat.value}</p>
-            </div>
-            <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-              <stat.icon className={`h-6 w-6 ${stat.color}`} />
-            </div>
-          </div>
+            title={stat.name}
+            value={stat.value}
+            subText={stat.change}
+            icon={stat.icon}
+            iconBg={stat.bgColor}
+            iconColor={stat.color}
+          />
         ))}
       </div>
 

@@ -32,13 +32,13 @@ const Sidebar = ({ currentUser, onLogout }) => {
       path: "/add-fund",
       group: "main",
     },
-    {
-      id: "transactions",
-      label: "Transactions",
-      icon: FileText,
-      path: "/transactions",
-      group: "main",
-    },
+    // {
+    //   id: "transactions",
+    //   label: "Transactions",
+    //   icon: FileText,
+    //   path: "/transactions",
+    //   group: "main",
+    // },
     {
       id: "members",
       label: "Members",

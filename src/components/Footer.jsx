@@ -63,7 +63,7 @@ export default function Footer() {
       )}
 
       {/* Always show copyright section on all routes */}
-      <div className="border-t border-gray-200 mt-6">
+      <div className="border-t border-gray-300 mt-6 ">
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <div className="flex gap-4 mb-4 md:mb-0">
             <a href="#">Get This Turch</a>

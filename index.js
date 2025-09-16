@@ -68,5 +68,77 @@ export const protectedRoute = [
   "/employee-management",
   "/wallet",
   "/all-kyc",
-  "/add-fund"
+  "/add-fund",
 ];
+
+import {
+  Wallet,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Users,
+  Percent,
+  BarChart3,
+  Shield,
+  FileText,
+  Settings,
+  User,
+  BadgeIndianRupee,
+} from "lucide-react";
+
+export const navbarTitleConfig = {
+  "/dashboard": {
+    title: "Dashboard",
+    tagLine: "Overview of your system",
+    icon: BarChart3,
+  },
+  "/add-fund": {
+    title: "Payin",
+    tagLine: "Manage incoming transactions",
+    icon: BadgeIndianRupee,
+  },
+  "/payout": {
+    title: "Payout",
+    tagLine: "Manage outgoing transactions",
+    icon: ArrowDownCircle,
+  },
+  "/transactions": {
+    title: "Transactions",
+    tagLine: "All payment history",
+    icon: FileText,
+  },
+  "/members": {
+    title: "Members",
+    tagLine: "Manage all members",
+    icon: User,
+  },
+  "/users": {
+    title: "Users",
+    tagLine: "Manage your platform users",
+    icon: Users,
+  },
+  "/commission": {
+    title: "Commission Settings",
+    tagLine: "Configure your commission rates",
+    icon: Percent,
+  },
+  "/reports": {
+    title: "Reports",
+    tagLine: "Analytics & insights",
+    icon: BarChart3,
+  },
+  "/all-kyc": {
+    title: "KYC Verification",
+    tagLine: "Verify your customers",
+    icon: Shield,
+  },
+  "/wallet": {
+    title: "Wallet",
+    tagLine: "Wallet Management System",
+    icon: Wallet,
+  },
+  "/settings": {
+    title: "Settings",
+    tagLine: "Manage application settings",
+    icon: Settings,
+  },
+};

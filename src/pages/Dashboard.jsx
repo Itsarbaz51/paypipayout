@@ -9,6 +9,8 @@ import {
   Percent,
   BarChart3,
 } from "lucide-react";
+import HeaderSection from "../components/ui/HeaderSection";
+import StateCard from "../components/ui/StateCard";
 
 const Dashboard = ({
   currentUser,
@@ -50,92 +52,54 @@ const Dashboard = ({
   };
 
   const stats = getUserStats();
+  const statCards = [
+    {
+      title: "Wallet Balance",
+      value: `₹${currentUser?.walletBalance?.toLocaleString()}`,
+      subText: "Available funds",
+      icon: Wallet,
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-600",
+    },
+    {
+      title: "Total Payin",
+      value: `₹${stats.totalPayin.toLocaleString()}`,
+      subText: "Money received",
+      icon: ArrowUpCircle,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+    },
+    {
+      title: "Total Payout",
+      value: `₹${stats.totalPayout.toLocaleString()}`,
+      subText: "Money sent",
+      icon: ArrowDownCircle,
+      iconBg: "bg-orange-100",
+      iconColor: "text-orange-600",
+    },
+    {
+      title: "Commission Earned",
+      value: `₹${stats.totalCommission.toLocaleString()}`,
+      subText: "Total earnings",
+      icon: DollarSign,
+      iconBg: "bg-purple-100",
+      iconColor: "text-purple-600",
+    },
+  ];
 
   return (
-    <div className=" bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 p-6 space-y-8">
+    <div className="space-y-8">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 text-white p-8 rounded-2xl shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {currentUser.name}
-            </h1>
-            <p className="text-cyan-100 text-lg capitalize">
-              {currentUser.role.replace("_", " ")} Dashboard
-            </p>
-          </div>
-        </div>
-      </div>
+      <HeaderSection
+        title={`Welcome back, ${currentUser.name}`}
+        tagLine={`${currentUser.role.replace("_", " ")} Dashboard`}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
-                Wallet Balance
-              </p>
-              <p className="text-3xl font-bold text-emerald-600">
-                ₹{currentUser?.walletBalance?.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Available funds</p>
-            </div>
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <Wallet className="h-8 w-8 text-emerald-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
-                Total Payin
-              </p>
-              <p className="text-3xl font-bold text-blue-600">
-                ₹{stats.totalPayin.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Money received</p>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <ArrowUpCircle className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
-                Total Payout
-              </p>
-              <p className="text-3xl font-bold text-orange-600">
-                ₹{stats.totalPayout.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Money sent</p>
-            </div>
-            <div className="bg-orange-100 p-3 rounded-full">
-              <ArrowDownCircle className="h-8 w-8 text-orange-600" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">
-                Commission Earned
-              </p>
-              <p className="text-3xl font-bold text-purple-600">
-                ₹{stats.totalCommission.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Total earnings</p>
-            </div>
-            <div className="bg-purple-100 p-3 rounded-full">
-              <DollarSign className="h-8 w-8 text-purple-600" />
-            </div>
-          </div>
-        </div>
+        {statCards.map((card, idx) => (
+          <StateCard key={idx} {...card} />
+        ))}
       </div>
 
       {/* Quick Actions Section */}
