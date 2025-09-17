@@ -39,7 +39,9 @@ const walletSlice = createSlice({
       state.balance = action.payload?.data || action.payload;
     },
     setTransactions: (state, action) => {
+      state.isLoading = false;
       state.transactions = action.payload?.data || action.payload;
+      state.error = null;
     },
     resetWallet: (state) => {
       state.balance = 0;

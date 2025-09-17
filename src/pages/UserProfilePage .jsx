@@ -137,7 +137,7 @@ const UserProfilePage = ({ onClose }) => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="bg-white shadow rounded-lg mb-6">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between">
+          <div className="px-6 py-4 border-b border-gray-300 flex justify-between">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-3">
                 <div className="bg-blue-100 p-3 rounded-full">
@@ -163,7 +163,7 @@ const UserProfilePage = ({ onClose }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Basic Information */}
           <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-300">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                 <User className="w-5 h-5 mr-2 text-gray-600" />
                 Basic Information
@@ -215,7 +215,7 @@ const UserProfilePage = ({ onClose }) => {
           {/* Bank Details */}
           {userData.bankDetails && (
             <div className="bg-white shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-300">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <CreditCard className="w-5 h-5 mr-2 text-gray-600" />
@@ -266,7 +266,7 @@ const UserProfilePage = ({ onClose }) => {
           {/* KYC Details */}
           {userData.kycDetails && (
             <div className="bg-white shadow rounded-lg lg:col-span-1">
-              <div className="px-6 py-4 border-b border-gray-200">
+              <div className="px-6 py-4 border-b border-gray-300">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                     <FileText className="w-5 h-5 mr-2 text-gray-600" />
@@ -373,7 +373,7 @@ const UserProfilePage = ({ onClose }) => {
         {/* Document Images Section */}
         {userData.kycDetails && (
           <div className="mt-6 bg-white shadow rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-300">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                 <FileText className="w-5 h-5 mr-2 text-gray-600" />
                 Document Images

@@ -5,6 +5,8 @@ import { getAdminBank } from "../../redux/slices/bankSlice";
 import { addFunds } from "../../redux/slices/walletSlice";
 import { toast } from "react-toastify";
 import axios from "axios";
+import InputField from "../ui/InputField";
+import SelectField from "../ui/SelectField";
 
 const generateOrderId = (prefix = "ORD") => {
   const year = new Date().getFullYear();
@@ -68,21 +70,18 @@ const AddFundRequest = () => {
     setIsProcessing(true);
 
     try {
-      // 1. Create order from backend
       const { data } = await axios.post("/wallet/create-order", {
         amount: form.amount,
       });
 
       const order = data.data;
 
-      // 2. Make sure Razorpay script is loaded
       if (!window.Razorpay) {
         toast.error("Razorpay SDK not loaded. Please refresh the page.");
         setIsProcessing(false);
         return;
       }
 
-      // 3. Razorpay checkout
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -92,7 +91,6 @@ const AddFundRequest = () => {
         order_id: order.id,
         handler: async function (response) {
           try {
-            // 4. Verify payment with backend
             await axios.post("/wallet/verify-payment", {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -136,9 +134,10 @@ const AddFundRequest = () => {
       toast.error("Receipt is required");
       return;
     }
-    setIsProcessing(true);
 
+    setIsProcessing(true);
     const orderId = generateOrderId("BT");
+
     const formData = new FormData();
     formData.append("amount", parseFloat(form.amount));
     formData.append("provider", "BANK_TRANSFER");
@@ -161,6 +160,7 @@ const AddFundRequest = () => {
 
   return (
     <div>
+      {/* Header */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-slate-200">
         <div className="flex items-center justify-between">
           <div>
@@ -180,9 +180,9 @@ const AddFundRequest = () => {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Left: Bank Info + Payment Method */}
+        {/* Left Side */}
         <div className="space-y-6">
-          {/* Bank Details */}
+          {/* Bank Info */}
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
             <h3 className="text-xl font-semibold text-slate-800 mb-4">
               Bank Account Details
@@ -207,62 +207,38 @@ const AddFundRequest = () => {
             </div>
           </div>
 
-          {/* Payment Method */}
+          {/* Payment Method Select */}
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
             <h3 className="text-xl font-semibold text-slate-800 mb-4">
               Choose Payment Method
             </h3>
-            <div className="space-y-3">
-              <div
-                className={`p-4 rounded-xl border-2 cursor-pointer ${paymentMethod === "bank_transfer"
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200"
-                  }`}
-                onClick={() => setPaymentMethod("bank_transfer")}
-              >
-                <p className="font-semibold">Bank Transfer</p>
-                <p className="text-sm text-slate-600">
-                  Transfer to bank & upload receipt
-                </p>
-              </div>
-              <div
-                className={`p-4 rounded-xl border-2 cursor-pointer ${paymentMethod === "razorpay"
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200"
-                  }`}
-                onClick={() => setPaymentMethod("razorpay")}
-              >
-                <p className="font-semibold">Razorpay</p>
-                <p className="text-sm text-slate-600">
-                  Instant payment via UPI/Cards
-                </p>
-              </div>
-            </div>
+            <SelectField
+              name="paymentMethod"
+              label="Payment Method"
+              value={paymentMethod}
+              handleChange={(e) => setPaymentMethod(e.target.value)}
+              options={[
+                { value: "bank_transfer", label: "Bank Transfer" },
+                { value: "razorpay", label: "Razorpay" },
+              ]}
+            />
           </div>
         </div>
 
-        {/* Right: Fund Form */}
+        {/* Right Side: Form */}
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
           <h3 className="text-xl font-semibold text-slate-800 mb-4">
             Fund Request Details
           </h3>
 
           <div className="space-y-6">
-            {/* Amount */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Amount (₹)
-              </label>
-              <input
-                type="number"
-                name="amount"
-                value={form.amount}
-                onChange={handleInputChange}
-                className="w-full border-2 border-slate-200 rounded-xl p-3"
-                placeholder="Enter amount"
-                min="1"
-              />
-            </div>
+            <InputField
+              name="amount"
+              inputType="number"
+              placeholderName="Enter amount"
+              handleChange={handleInputChange}
+              valueData={form.amount}
+            />
 
             {paymentMethod === "razorpay" ? (
               <button
@@ -275,34 +251,20 @@ const AddFundRequest = () => {
               </button>
             ) : (
               <>
-                {/* RRN */}
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    RRN/UTR Number
-                  </label>
-                  <input
-                    type="text"
-                    name="rrn"
-                    value={form.rrn}
-                    onChange={handleInputChange}
-                    className="w-full border-2 border-slate-200 rounded-xl p-3"
-                    placeholder="Enter RRN/UTR"
-                  />
-                </div>
-
-                {/* Date */}
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Transaction Date
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={form.date}
-                    onChange={handleInputChange}
-                    className="w-full border-2 border-slate-200 rounded-xl p-3"
-                  />
-                </div>
+                <InputField
+                  name="rrn"
+                  inputType="text"
+                  placeholderName="Enter RRN/UTR"
+                  handleChange={handleInputChange}
+                  valueData={form.rrn}
+                />
+                <InputField
+                  name="date"
+                  inputType="date"
+                  placeholderName="Select transaction date"
+                  handleChange={handleInputChange}
+                  valueData={form.date}
+                />
 
                 {/* File Upload */}
                 <div>
@@ -313,9 +275,12 @@ const AddFundRequest = () => {
                     type="file"
                     onChange={handleFileChange}
                     accept=".png,.jpg,.jpeg,.pdf"
+                    className="w-full"
                   />
                   {form.file && (
-                    <p className="text-sm text-indigo-600">{form.file.name}</p>
+                    <p className="text-sm text-indigo-600 mt-1">
+                      {form.file.name}
+                    </p>
                   )}
                 </div>
 

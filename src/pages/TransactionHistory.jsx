@@ -157,7 +157,7 @@ const TransactionHistory = ({
 
     return (
       statusClasses[status] ||
-      "bg-gray-100 text-gray-800 border border-gray-200"
+      "bg-gray-100 text-gray-800 border border-gray-300"
     );
   };
 
@@ -227,7 +227,7 @@ const TransactionHistory = ({
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -243,7 +243,7 @@ const TransactionHistory = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -259,7 +259,7 @@ const TransactionHistory = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -275,7 +275,7 @@ const TransactionHistory = ({
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">
@@ -293,9 +293,9 @@ const TransactionHistory = ({
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-300">
           {/* Toolbar */}
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-gray-300">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
@@ -339,7 +339,7 @@ const TransactionHistory = ({
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
+                <tr className="border-b border-gray-300 bg-gray-50">
                   <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Date & Time
                   </th>
@@ -486,7 +486,7 @@ const TransactionHistory = ({
 
           {/* Pagination */}
           {filteredTransactions.length > 0 && (
-            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="px-6 py-4 border-t border-gray-300 bg-gray-50">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
                   Showing{" "}

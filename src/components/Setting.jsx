@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Search,
   Filter,
@@ -22,9 +22,10 @@ import {
   Eye,
   MoreVertical,
   CheckCircle,
-  AlertCircle,
+  UserCog,
 } from "lucide-react";
 import PageHeader from "./ui/PageHeader";
+import ManageServices from "../pages/ManageServices.jsx";
 // import LoginLogsTable from "./tabels/LoginLogsTable.jsx";
 
 // Sample data for login logs
@@ -307,6 +308,7 @@ const Settings = () => {
     { id: "general", label: "General Settings", icon: SettingsIcon },
     { id: "logs", label: "Login Logs", icon: Eye },
     { id: "accounts", label: "Company Accounts", icon: CreditCard },
+    { id: "services", label: "services", icon: UserCog },
   ];
 
   return (
@@ -339,7 +341,7 @@ const Settings = () => {
       {activeTab === "general" && (
         <div className="space-y-8">
           {/* Company Settings */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Company Information
             </h2>
@@ -348,7 +350,7 @@ const Settings = () => {
                 ({ key, label, type, icon: Icon }) => (
                   <div
                     key={key}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
                     <div className="flex items-center flex-1">
                       <Icon className="h-5 w-5 text-gray-400 mr-3" />
@@ -420,7 +422,7 @@ const Settings = () => {
           </div>
 
           {/* Contact Settings */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Contact Information
             </h2>
@@ -429,7 +431,7 @@ const Settings = () => {
                 ({ key, label, type, icon: Icon }) => (
                   <div
                     key={key}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
                     <div className="flex items-center flex-1">
                       <Icon className="h-5 w-5 text-gray-400 mr-3" />
@@ -490,7 +492,7 @@ const Settings = () => {
           </div>
 
           {/* Social Media Settings */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">
               Social Media Links
             </h2>
@@ -499,7 +501,7 @@ const Settings = () => {
                 ({ key, label, type, icon: Icon }) => (
                   <div
                     key={key}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-4 border border-gray-300 rounded-lg hover:bg-gray-50"
                   >
                     <div className="flex items-center flex-1">
                       <Icon className="h-5 w-5 text-gray-400 mr-3" />
@@ -563,8 +565,8 @@ const Settings = () => {
 
       {/* Login Logs Tab */}
       {activeTab === "logs" && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-          <div className="p-6 border-b border-gray-200">
+        <div className="bg-white rounded-xl border border-gray-300 shadow-sm">
+          <div className="p-6 border-b border-gray-300">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -595,7 +597,7 @@ const Settings = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-300">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     USER
@@ -670,7 +672,7 @@ const Settings = () => {
             </table>
           </div>
 
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+          <div className="px-6 py-4 border-t border-gray-300 flex items-center justify-between">
             <div className="text-sm text-gray-700">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
               {Math.min(currentPage * itemsPerPage, filteredLogs.length)} of{" "}
@@ -714,7 +716,7 @@ const Settings = () => {
       {/* Company Accounts Tab */}
       {activeTab === "accounts" && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-300 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -820,7 +822,7 @@ const Settings = () => {
             {/* Accounts Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 border-b border-gray-300">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ACCOUNT HOLDER
@@ -911,6 +913,7 @@ const Settings = () => {
           </div>
         </div>
       )}
+      {activeTab === "services" && <ManageServices />}
     </div>
   );
 };

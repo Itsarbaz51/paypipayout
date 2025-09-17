@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Search,
   Filter,
-  Download,
-  Calendar,
   TrendingUp,
   TrendingDown,
   Users,
@@ -13,12 +11,11 @@ import {
   PieChart,
   Eye,
 } from "lucide-react";
-import PageHeader from "./ui/PageHeader";
-import StateCard from "./ui/StateCard";
+import PageHeader from "../components/ui/PageHeader";
+import StateCard from "../components/ui/StateCard";
 
 const Reports = ({ currentUser, transactions, users }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [dateFilter, setDateFilter] = useState("all");
 
   const getReportData = () => {
     let reportUsers = [];
@@ -180,9 +177,9 @@ const Reports = ({ currentUser, transactions, users }) => {
       </div>
 
       {/* User-wise Report Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-white rounded-xl border border-gray-300 shadow-sm">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
@@ -214,7 +211,7 @@ const Reports = ({ currentUser, transactions, users }) => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-300">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   USER DETAILS
@@ -339,7 +336,7 @@ const Reports = ({ currentUser, transactions, users }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-gray-300 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             Showing {filteredReportData.length} of {reportData.length} users
           </div>

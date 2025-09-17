@@ -33,8 +33,10 @@ const commissionSlice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
       if (action.payload) toast.error(state.error);
+      state.error = null;
     },
     setCommissions: (state, action) => {
+      state.isLoading = false;
       state.commissions = action.payload?.data || action.payload;
     },
     resetCommission: (state) => {
@@ -117,8 +119,8 @@ export const updateCommission = (id, payload) => async (dispatch) => {
 
 // Delete commission
 export const deleteCommission = (id) => async (dispatch) => {
-    console.log(id);
-    
+  console.log(id);
+
   try {
     dispatch(commissionRequest());
     const { data } = await axios.delete(`/commission/delete-commissions/${id}`);

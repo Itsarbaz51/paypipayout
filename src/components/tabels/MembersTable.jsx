@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Search,
   User,
   Phone,
   Eye,
   Edit,
-  UserMinus,
   Settings,
   LogIn,
   Plus,
@@ -22,9 +21,11 @@ import {
   getUserById,
   updateUserStates,
 } from "../../redux/slices/userSlice";
-import UserProfilePage from "../../pages/UserProfilePage ";
+// import UserProfilePage from "../../pages/UserProfilePage";
 import HeaderSection from "../ui/HeaderSection";
 import ButtonField from "../ui/ButtonField";
+import Loader from "../Loader";
+import ConfirmCard from "../ui/ConfirmCard";
 
 const MembersTable = () => {
   const [search, setSearch] = useState("");
@@ -32,6 +33,11 @@ const MembersTable = () => {
   const [showViewProfile, setShowViewProfile] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
+  const [showActionModal, setShowActionModal] = useState(false);
+
+  // NEW STATES FOR CONFIRM
+  const [actionType, setActionType] = useState("");
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const dispatch = useDispatch();
   const { users: usersData, isLoading } = useSelector((state) => state.user);
@@ -42,7 +48,6 @@ const MembersTable = () => {
     dispatch(getAllUsers());
   }, [dispatch]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -90,9 +95,12 @@ const MembersTable = () => {
         return role;
     }
   };
+
   const handleMenuAction = (action, user, userData) => {
     if (action === "status") {
-      dispatch(updateUserStates(user.id, userData));
+      setActionType(user.status === "IN_ACTIVE" ? "Activate" : "Deactivate");
+      setSelectedUser({ user, userData });
+      setShowActionModal(true);
     } else if (action === "view") {
       dispatch(getUserById(user.id));
       setShowViewProfile(true);
@@ -100,8 +108,16 @@ const MembersTable = () => {
     setOpenMenuId(null);
   };
 
+  const confirmAction = () => {
+    if (actionType && selectedUser) {
+      dispatch(updateUserStates(selectedUser.user.id, selectedUser.userData));
+    }
+    setShowActionModal(false);
+    setSelectedUser(null);
+  };
+
   return (
-    <div className="">
+    <div>
       <HeaderSection
         title="Members Management"
         tagLine="Manage your team members and their access levels"
@@ -110,7 +126,7 @@ const MembersTable = () => {
       />
 
       {/* Search and Add Member */}
-      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-300 mb-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-1">
@@ -134,17 +150,18 @@ const MembersTable = () => {
               name={`Add Member`}
               isOpen={() => setShowform(true)}
               icon={Plus}
+              css
             />
           </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white w-full rounded-xl h-full shadow-lg border border-gray-300">
+        <div>
           <table className="min-w-full">
             <thead>
-              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+              <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-300">
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase">
                   #
                 </th>
@@ -170,27 +187,20 @@ const MembersTable = () => {
             </thead>
 
             <tbody className="divide-y divide-gray-100">
-              {isLoading && (
-                <tr>
-                  <td colSpan="7" className="text-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4 mx-auto"></div>
-                    <p className="text-gray-500">Loading members...</p>
-                  </td>
-                </tr>
-              )}
-
               {!isLoading &&
                 filteredUsers?.map((user, index) => (
                   <tr
                     key={user.id}
                     className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all"
                   >
+                    {/* # */}
                     <td className="px-6 py-5">
                       <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                         {index + 1}
                       </div>
                     </td>
 
+                    {/* Member */}
                     <td className="px-6 py-5">
                       <div className="flex items-center space-x-3">
                         <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
@@ -208,6 +218,7 @@ const MembersTable = () => {
                       </div>
                     </td>
 
+                    {/* Contact */}
                     <td className="px-6 py-5">
                       <div className="flex items-center text-sm text-gray-700">
                         <Phone className="w-4 h-4 mr-2 text-gray-400" />
@@ -215,6 +226,7 @@ const MembersTable = () => {
                       </div>
                     </td>
 
+                    {/* Role */}
                     <td className="px-6 py-5">
                       <span
                         className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${getRoleColor(
@@ -225,6 +237,7 @@ const MembersTable = () => {
                       </span>
                     </td>
 
+                    {/* Wallet */}
                     <td className="px-6 py-5">
                       <div className="flex items-center space-x-2">
                         <Wallet className="w-4 h-4 text-gray-400" />
@@ -240,6 +253,7 @@ const MembersTable = () => {
                       </div>
                     </td>
 
+                    {/* Status */}
                     <td className="px-6 py-5">
                       <span
                         className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${
@@ -252,6 +266,7 @@ const MembersTable = () => {
                       </span>
                     </td>
 
+                    {/* Actions */}
                     <td className="px-6 py-5 text-center relative">
                       <div ref={menuRef} className="inline-block">
                         <button
@@ -270,7 +285,7 @@ const MembersTable = () => {
                         </button>
 
                         {openMenuId === user.id && (
-                          <div className="absolute right-0 mt-2 bg-white shadow-2xl rounded-lg w-48 z-50 border border-gray-200">
+                          <div className="absolute right-16 bg-white shadow-2xl rounded-lg w-48 z-50 border border-gray-300">
                             <button
                               onClick={() => handleMenuAction("login", user)}
                               className="flex items-center w-full px-4 py-3 text-sm hover:bg-blue-50"
@@ -326,6 +341,14 @@ const MembersTable = () => {
           </table>
         </div>
       </div>
+
+      {showActionModal && (
+        <ConfirmCard
+          actionType={actionType}
+          isClose={() => setShowActionModal(false)}
+          isSubmit={confirmAction}
+        />
+      )}
 
       {/* Modal */}
       {showform && (

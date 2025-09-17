@@ -117,7 +117,7 @@ const PayoutTable = ({
 
     return (
       statusClasses[status] ||
-      "bg-gray-100 text-gray-800 border border-gray-200"
+      "bg-gray-100 text-gray-800 border border-gray-300"
     );
   };
 
@@ -146,9 +146,9 @@ const PayoutTable = ({
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-300">
         {/* Toolbar */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -174,7 +174,7 @@ const PayoutTable = ({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-gray-300 bg-gray-50">
                 <th className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   User Profile
                 </th>
@@ -327,7 +327,7 @@ const PayoutTable = ({
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-t border-gray-300 bg-gray-50">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-700">
               Showing <span className="font-medium">1</span> to{" "}

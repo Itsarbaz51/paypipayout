@@ -230,7 +230,8 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
 
       if (
         kycRes.data.kycStatus === "PENDING" &&
-        bankRes.data.isVerified === false && message === "Logged out successfully"
+        bankRes.data.isVerified === false &&
+        message === "Logged out successfully"
       ) {
         navigate("/");
       } else {
@@ -251,7 +252,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
         className={`border-2 border-dashed p-4 text-center rounded-lg ${
           errors[field]
             ? "border-red-500 bg-red-50"
-            : "border-gray-300 hover:border-gray-500"
+            : "border-gray-300 hover:border-gray-300"
         }`}
       >
         <input
@@ -305,7 +306,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-gray-300">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -567,7 +568,7 @@ const KYCVerification = ({ currentUser, users, setUsers, setCurrentUser }) => {
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-between p-6 border-t border-gray-200">
+      <div className="flex justify-between p-6 border-t border-gray-300">
         <button
           disabled={activeTab === "personal"}
           onClick={handlePrev}

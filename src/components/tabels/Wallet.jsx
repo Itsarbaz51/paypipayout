@@ -20,6 +20,7 @@ import {
   updateTopup,
 } from "../../redux/slices/walletSlice";
 import StateCard from "../ui/StateCard";
+import ConfirmCard from "../ui/ConfirmCard";
 
 const WalletTable = () => {
   const [activeTab, setActiveTab] = useState("transactions");
@@ -31,6 +32,7 @@ const WalletTable = () => {
   const [selectedTxn, setSelectedTxn] = useState(null);
   const [showActionModal, setShowActionModal] = useState(false);
   const [actionType, setActionType] = useState("");
+  console.log(actionType);
 
   const dispatch = useDispatch();
 
@@ -101,7 +103,7 @@ const WalletTable = () => {
       case "FAILED":
         return "bg-red-100 text-red-800 border border-red-200";
       default:
-        return "bg-gray-100 text-gray-800 border border-gray-200";
+        return "bg-gray-100 text-gray-800 border border-gray-300";
     }
   };
 
@@ -112,7 +114,7 @@ const WalletTable = () => {
       case "PAYMENT":
         return "bg-blue-100 text-blue-800 border border-blue-200";
       default:
-        return "bg-gray-100 text-gray-800 border border-gray-200";
+        return "bg-gray-100 text-gray-800 border border-gray-300";
     }
   };
 
@@ -373,33 +375,11 @@ const WalletTable = () => {
 
       {/* Action Modal */}
       {showActionModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 shadow-lg max-w-sm w-full">
-            <h2 className="text-lg font-bold mb-4">
-              {actionType === "VERIFIED" ? "Approve" : "Reject"} Transaction
-            </h2>
-            <p className="mb-4">
-              Are you sure you want to{" "}
-              <span className="font-semibold">{actionType}</span> this payment?
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowActionModal(false)}
-                className="px-4 py-2 border rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAction}
-                className={`px-4 py-2 rounded-lg text-white ${
-                  actionType === "VERIFIED" ? "bg-green-600" : "bg-red-600"
-                }`}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmCard
+          actionType={actionType}
+          isClose={() => setShowActionModal(false)}
+          isSubmit={confirmAction}
+        />
       )}
     </div>
   );

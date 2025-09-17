@@ -164,7 +164,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
   return (
     <div className="w-64 flex flex-col fixed h-screen border-r border-gray-300">
       {/* Header */}
-      <div className="p-6 border-b border-gray-700/50">
+      <div className="p-6 border-b border-gray-300">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-lg flex items-center justify-center">
             <Play className="h-6 w-6" />
@@ -178,7 +178,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
 
       {/* User Profile */}
       <div className="p-4">
-        <div className="backdrop-blur-sm rounded-xl p-4 border text-black border-gray-600/30">
+        <div className="backdrop-blur-sm rounded-xl p-4 border text-black border-gray-300">
           <div className="flex items-center mb-3">
             <div className="h-10 w-10 bg-gray-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg">
               {currentUser.name.charAt(0).toUpperCase()}
@@ -209,7 +209,7 @@ const Sidebar = ({ currentUser, onLogout }) => {
       </div>
 
       {/* Logout */}
-      <div className="p-4 border-t border-gray-700/50">
+      <div className="p-4 border-t border-gray-300">
         <button
           onClick={onLogout}
           className="w-full cursor-pointer hover:bg-red-200 flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group"

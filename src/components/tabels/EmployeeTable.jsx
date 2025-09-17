@@ -193,7 +193,7 @@ const EmployeeTable = () => {
 
       {/* Add Employee Form */}
       {showAddForm && (
-        <div className="bg-white rounded-lg border border-gray-200 mb-6 p-6">
+        <div className="bg-white rounded-lg border border-gray-300 mb-6 p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">
               Add New Employee
@@ -302,9 +302,9 @@ const EmployeeTable = () => {
       )}
 
       {/* Main Content */}
-      <div className="bg-white rounded-lg border border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-300">
         {/* Search and Filter Bar */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-300">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -326,7 +326,7 @@ const EmployeeTable = () => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-300">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   EMPLOYEE
@@ -440,7 +440,7 @@ const EmployeeTable = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-gray-300 flex items-center justify-between">
           <div className="text-sm text-gray-700">
             Showing {filtered.length} of {employees.length} employees
           </div>

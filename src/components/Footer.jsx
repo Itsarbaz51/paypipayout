@@ -7,7 +7,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`${!isProtectedRoute && "bg-white border-t border-gray-200"}`}
+      className={`${!isProtectedRoute && "bg-white border-t border-gray-300"}`}
     >
       {/* Show full footer only on public routes, show only copyright on protected routes */}
       {!isProtectedRoute && (

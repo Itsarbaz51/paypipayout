@@ -14,7 +14,7 @@ function Title() {
   };
   return (
     <div className="flex items-center space-x-4">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl shadow-lg">
+      <div className="bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 p-2 rounded-xl shadow-lg">
         {Icon && <Icon className="h-8 w-8 text-white" />}
       </div>
       <div>

@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addCommission } from "../../redux/slices/commissionSlice";
+import InputField from "../ui/InputField";
+import SelectField from "../ui/SelectField";
+import ButtonField from "../ui/ButtonField";
 
 const roles = ["STATE_HOLDER", "MASTER_DISTRIBUTOR", "DISTRIBUTOR", "AGENT"];
 const services = ["NEFT", "IMPS"];
@@ -18,6 +21,7 @@ const AddCommission = ({ chargesData, setChargesData }) => {
     role: "",
     service: "NEFT",
   });
+  const [loading, setLoading] = useState(false);
 
   const handleAddSlab = async () => {
     if (
@@ -45,6 +49,7 @@ const AddCommission = ({ chargesData, setChargesData }) => {
     }
 
     try {
+      setLoading(true);
       const result = await dispatch(
         addCommission({
           role: newSlab.role,
@@ -62,6 +67,7 @@ const AddCommission = ({ chargesData, setChargesData }) => {
       if (created && created.id) {
         setChargesData((prev) => [...prev, created]);
       }
+      setLoading(false);
     } catch (err) {
       console.error("Add commission failed", err);
       alert(err?.message || "Failed to add slab");
@@ -78,77 +84,82 @@ const AddCommission = ({ chargesData, setChargesData }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 mb-6 p-6">
+    <div className="bg-white rounded-lg border border-gray-300 mb-6 p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Slab</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        <input
-          type="number"
-          placeholder="From"
-          value={newSlab.from}
-          onChange={(e) => setNewSlab({ ...newSlab, from: e.target.value })}
-          className="px-3 py-2 border rounded-md"
+      <div className="grid space-x-5 grid-cols-1 lg:grid-cols-7 ">
+        {/* From */}
+        <InputField
+          name="from"
+          inputType="number"
+          placeholderName="From"
+          valueData={newSlab.from}
+          handleChange={(e) => setNewSlab({ ...newSlab, from: e.target.value })}
         />
 
-        <input
-          type="number"
-          placeholder="To"
-          value={newSlab.to}
-          onChange={(e) => setNewSlab({ ...newSlab, to: e.target.value })}
-          className="px-3 py-2 border rounded-md"
+        {/* To */}
+        <InputField
+          name="to"
+          inputType="number"
+          placeholderName="To"
+          valueData={newSlab.to}
+          handleChange={(e) => setNewSlab({ ...newSlab, to: e.target.value })}
         />
 
-        <input
-          type="number"
-          placeholder="Value"
-          value={newSlab.value}
-          onChange={(e) => setNewSlab({ ...newSlab, value: e.target.value })}
-          className="px-3 py-2 border rounded-md"
+        {/* Value */}
+        <InputField
+          name="value"
+          inputType="number"
+          placeholderName="Value"
+          valueData={newSlab.value}
+          handleChange={(e) =>
+            setNewSlab({ ...newSlab, value: e.target.value })
+          }
         />
 
-        <select
+        {/* Type */}
+        <SelectField
+          name="type"
+          label="Type"
           value={newSlab.type}
-          onChange={(e) => setNewSlab({ ...newSlab, type: e.target.value })}
-          className="px-3 py-2 border rounded-md"
-        >
-          {types.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+          handleChange={(e) => setNewSlab({ ...newSlab, type: e.target.value })}
+          options={types.map((t) => ({ value: t, label: t }))}
+        />
 
-        <select
+        {/* Service */}
+        <SelectField
+          name="service"
+          label="Service"
           value={newSlab.service}
-          onChange={(e) => setNewSlab({ ...newSlab, service: e.target.value })}
-          className="px-3 py-2 border rounded-md"
-        >
-          {services.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+          handleChange={(e) =>
+            setNewSlab({ ...newSlab, service: e.target.value })
+          }
+          options={services.map((s) => ({ value: s, label: s }))}
+        />
 
-        <select
+        {/* Role */}
+        <SelectField
+          name="role"
+          label="Role"
           value={newSlab.role}
-          onChange={(e) => setNewSlab({ ...newSlab, role: e.target.value })}
-          className="px-3 py-2 border rounded-md"
-        >
-          <option value="">Select Role</option>
-          {roles.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </select>
+          handleChange={(e) => setNewSlab({ ...newSlab, role: e.target.value })}
+          options={[
+            { value: "", label: "Select Role" },
+            ...roles.map((r) => ({ value: r, label: r })),
+          ]}
+        />
 
-        <button
-          onClick={handleAddSlab}
-          className="col-span-1 md:col-span-1 inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4 mr-1" /> Add
-        </button>
+        {/* Add Button */}
+        <div className="flex justify-center items-end pb-1">
+          <ButtonField
+            type="submit"
+            isDisabled={loading}
+            icon={Plus}
+            onClick={handleAddSlab}
+            isOpen={null}
+            name={"Submit"}
+          />
+        </div>
       </div>
     </div>
   );

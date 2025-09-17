@@ -6,6 +6,7 @@ import {
   deleteCommission,
 } from "../../redux/slices/commissionSlice";
 
+// constants
 const roles = ["STATE_HOLDER", "MASTER_DISTRIBUTOR", "DISTRIBUTOR", "AGENT"];
 const services = ["NEFT", "IMPS"];
 const types = ["FIXED", "PERCENT"];
@@ -13,7 +14,10 @@ const types = ["FIXED", "PERCENT"];
 const CommissionTable = ({ chargesData, setChargesData }) => {
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [confirmItem, setConfirmItem] = useState(null); // item for confirmation modal
+
   const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.auth?.currentUser);
 
   const filteredData = chargesData.filter((item) => {
     const q = searchTerm.trim().toLowerCase();
@@ -66,27 +70,24 @@ const CommissionTable = ({ chargesData, setChargesData }) => {
 
   const handleCancel = () => setEditingId(null);
 
-  const handleDelete = async (item) => {
-    if (
-      confirm(
-        `Are you sure you want to delete the commission slab for ${item.role} (${item.service})?`
-      )
-    ) {
-      try {
-        await dispatch(deleteCommission(item.id));
-        setChargesData((prev) => prev.filter((c) => c.id !== item.id));
-      } catch (err) {
-        console.error("Delete failed", err);
-        alert("Failed to delete slab");
-      }
+  const confirmDelete = (item) => setConfirmItem(item);
+
+  const handleDeleteConfirmed = async () => {
+    if (!confirmItem) return;
+    try {
+      await dispatch(deleteCommission(confirmItem.id));
+      setChargesData((prev) => prev.filter((c) => c.id !== confirmItem.id));
+    } catch (err) {
+      console.error("Delete failed", err);
+      alert("Failed to delete slab");
     }
+    setConfirmItem(null);
   };
 
-  const currentUser = useSelector((state) => state.auth?.currentUser);
-
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-4 border-b flex justify-between items-center">
+    <div className="bg-white rounded-lg border border-gray-300">
+      {/* Search */}
+      <div className="p-4 border-b border-gray-300 flex justify-between items-center">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <input
@@ -99,8 +100,9 @@ const CommissionTable = ({ chargesData, setChargesData }) => {
         </div>
       </div>
 
+      {/* Table */}
       <table className="w-full">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-gray-50 border-b border-gray-300">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium">#</th>
             <th className="px-6 py-3 text-left text-xs font-medium">From</th>
@@ -227,7 +229,7 @@ const CommissionTable = ({ chargesData, setChargesData }) => {
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(item)}
+                        onClick={() => confirmDelete(item)}
                         className="text-red-600 hover:text-red-700 p-2 rounded bg-red-50 hover:bg-red-100"
                       >
                         <Trash className="h-4 w-4" />
@@ -240,8 +242,46 @@ const CommissionTable = ({ chargesData, setChargesData }) => {
           ))}
         </tbody>
       </table>
+
+      {/* ConfirmCard modal */}
+      {confirmItem && (
+        <ConfirmCard
+          actionType="Delete"
+          isClose={() => setConfirmItem(null)}
+          isSubmit={handleDeleteConfirmed}
+        />
+      )}
     </div>
   );
 };
+
+// ConfirmCard component
+function ConfirmCard({ actionType, isClose, isSubmit }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 shadow-lg max-w-sm w-full">
+        <h2 className="text-lg font-bold mb-4">Confirm {actionType}</h2>
+        <p className="mb-4">
+          Are you sure you want to{" "}
+          <span className="font-semibold">{actionType}</span> this commission
+          slab?
+        </p>
+        <div className="flex justify-end space-x-3">
+          <button onClick={isClose} className="px-4 py-2 border rounded-lg">
+            Cancel
+          </button>
+          <button
+            onClick={isSubmit}
+            className={`px-4 py-2 rounded-lg text-white ${
+              actionType === "Delete" ? "bg-red-600" : "bg-green-600"
+            }`}
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default CommissionTable;

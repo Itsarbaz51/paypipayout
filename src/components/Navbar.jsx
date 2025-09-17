@@ -28,7 +28,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={` border-b border-gray-500 ${
+      className={` border-b border-gray-300 ${
         !isProtectedRoute
           ? "flex items-center justify-between px-8 py-4 backdrop-blur-2xl sticky top-0 z-50"
           : "py-5"

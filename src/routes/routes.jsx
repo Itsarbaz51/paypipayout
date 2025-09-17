@@ -11,9 +11,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 
 import Dashboard from "../pages/Dashboard";
 // import PayinComponent from "../components/PayinComponent";
-import UserManagement from "../components/UserManagement";
-import TransactionHistory from "../components/TransactionHistory";
-import Reports from "../components/Reports";
+import TransactionHistory from "../pages/TransactionHistory";
+import Reports from "../pages/Reports";
 
 import PublicLayout from "../layouts/PublicLayout";
 import Home from "../pages/landing/Home";
@@ -120,17 +119,6 @@ export const createRouter = (appProps) => {
                 currentUser={appProps.currentUser}
                 transactions={appProps.transactions}
                 users={appProps.users}
-              />
-            }
-          />
-
-          <Route
-            path="users"
-            element={
-              <UserManagement
-                currentUser={appProps.currentUser}
-                users={appProps.users}
-                setUsers={appProps.setUsers}
               />
             }
           />

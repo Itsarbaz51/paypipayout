@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Eye,
   Trash2,
-  Filter,
   Download,
   CheckCircle2,
   X,
@@ -20,15 +19,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteKyc, getKycAll, verifyKyc } from "../../redux/slices/kycSlice";
 import StateCard from "../ui/StateCard";
 import PageHeader from "../ui/PageHeader";
+import ButtonField from "../ui/ButtonField";
+import ConfirmCard from "../ui/ConfirmCard"; // ✅ Import modal
 
 const AllKycTable = () => {
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("ALL");
+
+  // ✅ Modal states
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getKycAll());
-  }, []);
+  }, [dispatch]);
 
   const kycProfilesRaw = useSelector((state) => state.kyc?.kycData);
   const kycProfiles = Array.isArray(kycProfilesRaw) ? kycProfilesRaw : [];
@@ -66,21 +73,28 @@ const AllKycTable = () => {
 
     return (
       configs[status] || {
-        classes: "bg-gray-50 text-gray-700 border border-gray-200",
+        classes: "bg-gray-50 text-gray-700 border border-gray-300",
         icon: <FileText className="w-3 h-3" />,
         dot: "bg-gray-500",
       }
     );
   };
 
-  const handleKycVerification = (action, kycId) => {
-    if (action === "verified") {
-      dispatch(verifyKyc(kycId, "verified"));
-    } else if (action === "reject") {
-      dispatch(verifyKyc(kycId, "rejected"));
-    } else if (action === "delete") {
-      dispatch(deleteKyc(kycId));
+  const handleActionClick = (action, id) => {
+    setSelectedAction(action);
+    setSelectedId(id);
+    setShowModal(true);
+  };
+
+  const confirmAction = () => {
+    if (selectedAction === "VERIFIED") {
+      dispatch(verifyKyc(selectedId, "verified"));
+    } else if (selectedAction === "REJECTED") {
+      dispatch(verifyKyc(selectedId, "rejected"));
+    } else if (selectedAction === "DELETE") {
+      dispatch(deleteKyc(selectedId));
     }
+    setShowModal(false);
   };
 
   const getStatusCounts = () => {
@@ -124,31 +138,40 @@ const AllKycTable = () => {
     },
   ];
 
+  const downloadExcel = () => {
+    // todo
+  };
+
   return (
     <div>
-      <div className="mb-8">
+      {/* ✅ Confirmation Modal */}
+      {showModal && (
+        <ConfirmCard
+          actionType={selectedAction}
+          isClose={() => setShowModal(false)}
+          isSubmit={confirmAction}
+        />
+      )}
+
+      <div className="mb-8 space-y-3">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <PageHeader
             breadcrumb={["Dashboard", "KYC Management"]}
             title="KYC Profiles"
             description="Review and manage customer verification documents"
           />
-
-          {/* Status Overview Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {statusCards.map((card, idx) => (
-              <StateCard key={idx} {...card} />
-            ))}
-          </div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {statusCards.map((card, idx) => (
+            <StateCard key={idx} {...card} />
+          ))}
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {/* Enhanced Toolbar */}
-        <div className="p-6 border-b border-gray-200 bg-gray-50/50">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden">
+        <div className="p-6 border-b border-gray-300 bg-gray-50/50">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
-              {/* Search */}
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
@@ -160,7 +183,6 @@ const AllKycTable = () => {
                 />
               </div>
 
-              {/* Status Filter */}
               <select
                 className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white min-w-[140px]"
                 value={statusFilter}
@@ -173,25 +195,22 @@ const AllKycTable = () => {
               </select>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button className="inline-flex items-center px-4 py-2.5 text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-colors duration-200">
-                <Filter className="w-4 h-4 mr-2" />
-                More Filters
-              </button>
-              <button className="inline-flex items-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 shadow-sm">
-                <Download className="w-4 h-4 mr-2" />
-                Export Data
-              </button>
-            </div>
+            <ButtonField
+              type="submit"
+              isDisabled={loading}
+              icon={Download}
+              onClick={downloadExcel}
+              isOpen={null}
+              name={"Excel"}
+            />
           </div>
         </div>
 
-        {/* Enhanced Table */}
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+              <tr className="border-b border-gray-300 bg-gray-50">
                 <th className="px-6 py-4 text-xs font-semibold text-gray-700 uppercase tracking-wider text-left">
                   Profile
                 </th>
@@ -222,12 +241,12 @@ const AllKycTable = () => {
                       key={kyc.id}
                       className="hover:bg-gray-50 transition-colors duration-150"
                     >
-                      {/* Enhanced Profile */}
+                      {/* Profile */}
                       <td className="px-6 py-5">
                         <div className="flex items-center">
                           <div className="relative">
                             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-md">
-                              {kyc.kyc?.name?.[0]?.toUpperCase() || "U"}
+                              {kyc.User?.name?.[0]?.toUpperCase() || "U"}
                             </div>
                             <div
                               className={`absolute -bottom-1 -right-1 w-4 h-4 ${statusConfig.dot} rounded-full border-2 border-white`}
@@ -245,7 +264,7 @@ const AllKycTable = () => {
                         </div>
                       </td>
 
-                      {/* Enhanced Contact */}
+                      {/* Contact */}
                       <td className="px-6 py-5">
                         <div className="space-y-2">
                           <div className="flex items-center text-sm text-gray-900">
@@ -259,7 +278,7 @@ const AllKycTable = () => {
                         </div>
                       </td>
 
-                      {/* Enhanced Documents */}
+                      {/* Documents */}
                       <td className="px-6 py-5">
                         <div className="space-y-2 flex flex-col">
                           <span className="text-sm text-gray-900 font-mono">
@@ -271,7 +290,7 @@ const AllKycTable = () => {
                         </div>
                       </td>
 
-                      {/* Enhanced Address */}
+                      {/* Address */}
                       <td className="px-6 py-5">
                         <div className="flex items-start">
                           <MapPin className="w-4 h-4 text-gray-400 mr-2 mt-0.5 flex-shrink-0" />
@@ -289,7 +308,7 @@ const AllKycTable = () => {
                         </div>
                       </td>
 
-                      {/* Enhanced Status */}
+                      {/* Status */}
                       <td className="px-6 py-5">
                         <div
                           className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.classes}`}
@@ -299,15 +318,14 @@ const AllKycTable = () => {
                         </div>
                       </td>
 
-                      {/* Enhanced Actions */}
+                      {/* Actions */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-1">
                           {kyc.kycStatus === "PENDING" && (
                             <>
-                              {/* Verified button */}
                               <button
                                 onClick={() =>
-                                  handleKycVerification("verified", kyc.id)
+                                  handleActionClick("VERIFIED", kyc.id)
                                 }
                                 className="p-2.5 text-gray-400 hover:text-emerald-600 bg-emerald-50 hover:bg-green-100 rounded-lg transition-all duration-200 group"
                                 title="Verified KYC"
@@ -315,10 +333,9 @@ const AllKycTable = () => {
                                 <CheckCircle2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
                               </button>
 
-                              {/* Reject button */}
                               <button
                                 onClick={() =>
-                                  handleKycVerification("reject", kyc.id)
+                                  handleActionClick("REJECTED", kyc.id)
                                 }
                                 className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-100 bg-red-50 rounded-lg transition-all duration-200 group"
                                 title="Reject KYC"
@@ -331,7 +348,7 @@ const AllKycTable = () => {
                           {kyc.kycStatus === "VERIFIED" && (
                             <button
                               onClick={() =>
-                                handleKycVerification("reject", kyc.id)
+                                handleActionClick("REJECTED", kyc.id)
                               }
                               className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-100 bg-red-50 rounded-lg transition-all duration-200 group"
                               title="Reject KYC"
@@ -343,7 +360,7 @@ const AllKycTable = () => {
                           {kyc.kycStatus === "REJECTED" && (
                             <button
                               onClick={() =>
-                                handleKycVerification("verified", kyc.id)
+                                handleActionClick("VERIFIED", kyc.id)
                               }
                               className="p-2.5 text-gray-400 hover:text-emerald-600 bg-emerald-50 hover:bg-green-100 rounded-lg transition-all duration-200 group"
                               title="Verified KYC"
@@ -359,9 +376,7 @@ const AllKycTable = () => {
                             <Eye className="w-4 h-4 group-hover:scale-110 transition-transform" />
                           </button>
                           <button
-                            onClick={() =>
-                              handleKycVerification("delete", kyc.id)
-                            }
+                            onClick={() => handleActionClick("DELETE", kyc.id)}
                             className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
                             title="Delete Profile"
                           >
@@ -394,49 +409,6 @@ const AllKycTable = () => {
             </tbody>
           </table>
         </div>
-
-        {/* Enhanced Pagination */}
-        {filteredProfiles?.length > 0 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center text-sm text-gray-700">
-                <span>Showing </span>
-                <span className="font-semibold mx-1">
-                  {filteredProfiles?.length}
-                </span>
-                <span> of </span>
-                <span className="font-semibold mx-1">
-                  {kycProfiles?.length}
-                </span>
-                <span> entries</span>
-                {(search || statusFilter !== "ALL") && (
-                  <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                    Filtered
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  disabled
-                >
-                  Previous
-                </button>
-                <div className="flex items-center space-x-1">
-                  <button className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-lg">
-                    1
-                  </button>
-                </div>
-                <button
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  disabled
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

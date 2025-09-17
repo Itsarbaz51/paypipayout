@@ -2,10 +2,11 @@ import { useState } from "react";
 import { registation } from "../../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
-import HeaderSection from "../ui/HeaderSection";
 import Title from "../ui/Title";
 import ButtonField from "../ui/ButtonField";
+import CloseBtn from "../ui/CloseBtn";
+import InputField from "../ui/InputField";
+import SelectField from "../ui/SelectField";
 
 export default function AddMemer({ onClose }) {
   const [formData, setFormData] = useState({
@@ -28,86 +29,83 @@ export default function AddMemer({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const data = dispatch(registation(formData));
+    dispatch(registation(formData));
     setMessage("");
     setLoading(false);
     navigate("/login");
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
+    <div className="flex items-center justify-center w-full">
+      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-xl">
         <div className="flex justify-between space-y-3.5">
           <Title />
 
-          <span onClick={onClose}>
-            <X />
-          </span>
+          <CloseBtn isClose={onClose} />
         </div>
         {message && (
           <div className="mb-4 text-center text-sm text-red-500">{message}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
+        <form onSubmit={handleSubmit} className="space-y-4 ">
+          {/* Full Name */}
+          <InputField
             name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-            required
+            inputType="text"
+            placeholderName="Full Name"
+            valueData={formData.name}
+            handleChange={handleChange}
           />
 
-          <input
-            type="email"
+          {/* Email */}
+          <InputField
             name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-            required
+            inputType="email"
+            placeholderName="Email Address"
+            valueData={formData.email}
+            handleChange={handleChange}
           />
 
-          <input
-            type="text"
+          {/* Phone */}
+          <InputField
             name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-            required
+            inputType="text"
+            placeholderName="Phone Number"
+            valueData={formData.phone}
+            handleChange={handleChange}
           />
 
-          <input
-            type="password"
+          {/* Password */}
+          <InputField
             name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-            required
+            inputType="password"
+            placeholderName="Password"
+            valueData={formData.password}
+            handleChange={handleChange}
           />
 
-          <select
+          {/* Role Selection */}
+          <SelectField
             name="role"
+            label="Role"
             value={formData.role}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-          >
-            <option value="STATE_HOLDER">State Holder</option>
-            <option value="MASTER_DISTRIBUTOR">Master Distributer</option>
-            <option value="DISTRIBUTOR">Distributer</option>
-            <option value="AGENT">Agent</option>
-          </select>
+            handleChange={handleChange}
+            options={[
+              { value: "STATE_HOLDER", label: "State Holder" },
+              { value: "MASTER_DISTRIBUTOR", label: "Master Distributor" },
+              { value: "DISTRIBUTOR", label: "Distributor" },
+              { value: "AGENT", label: "Agent" },
+            ]}
+          />
 
+          {/* Submit Button */}
           <ButtonField
             type="submit"
             isDisabled={loading}
-            icon={null} // yaha se koi icon pass nahi kar rahe
+            icon={null}
             isOpen={null}
-            btncss="w-full bg-black/90 text-white py-2 rounded-lg hover:bg-black cursor-pointer transition disabled:bg-gray-400 "
-            name={loading ? "Registering..." : "Register"}
+            btncss="w-full bg-black/90 text-center bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700 hover:bg-gradient-to-r hover:from-cyan-600 hover:via-blue-700 hover:to-indigo-900 duration-300 text-white py-2 rounded-lg hover:bg-black cursor-pointer transition disabled:bg-gray-400"
+            name={"Submit"}
           />
         </form>
       </div>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Download } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import AddCommission from "../components/forms/AddCommission";
 import { getUserCommissions } from "../redux/slices/commissionSlice";
@@ -25,8 +24,6 @@ const CommissionCharges = () => {
 
   return (
     <div>
-   
-
       {/* Form */}
       {currentUser.role === "ADMIN" && (
         <AddCommission

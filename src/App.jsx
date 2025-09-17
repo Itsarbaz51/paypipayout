@@ -12,11 +12,7 @@ const AppContent = () => {
 
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState([]);
-  const [commissionSettings, setCommissionSettings] = useState({
-    super_admin: 0.5,
-    admin: 1.0,
-    agent: 2.0,
-  });
+
 
   // Mock Data Initialize
   useEffect(() => {
@@ -53,10 +49,8 @@ const AppContent = () => {
     currentUser,
     transactions,
     users,
-    commissionSettings,
     setTransactions,
     setUsers,
-    setCommissionSettings,
     handleLogout: () => dispatch(logout()),
   });
 
