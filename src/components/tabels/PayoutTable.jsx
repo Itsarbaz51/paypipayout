@@ -4,7 +4,6 @@ import {
   Eye,
   Trash2,
   Filter,
-  Download,
   Plus,
   CheckCircle2,
   X,
@@ -20,7 +19,7 @@ import {
 } from "lucide-react";
 import { PayoutForm } from "../forms/PayoutForm";
 import ButtonField from "../ui/ButtonField";
-import AccountVerificationForm from "../forms/AccountVerificationForm";
+import MoneyTransferForm from "../forms/MoneyTransferForm";
 
 const PageHeader = ({ breadcrumb, title, description }) => (
   <div>
@@ -170,7 +169,7 @@ const PayoutTable = ({
       )}
       {showAccountVerificationForm && (
         <div className="fixed inset-0 flex justify-center items-center bg-black/50 z-50">
-          <AccountVerificationForm onClose={() => setShowAccountVerificationForm(false)} />
+          <MoneyTransferForm onClose={() => setShowAccountVerificationForm(false)} />
         </div>
       )}
 
