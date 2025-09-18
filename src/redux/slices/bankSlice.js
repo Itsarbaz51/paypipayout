@@ -116,4 +116,21 @@ export const getAdminBank = () => async (dispatch) => {
   }
 };
 
+export const addBankWithVerify = (bankData) => async (dispatch) => {
+  try {
+    dispatch(bankRequest());
+
+    const { data } = await axios.post(`/payout/verify-add-bank`, bankData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    dispatch(bankSuccess(data));
+  } catch (error) {
+    const errMsg = error?.response?.data?.message || error?.message;
+    dispatch(bankFail(errMsg));
+  }
+};
+
 export default bankSlice.reducer;
